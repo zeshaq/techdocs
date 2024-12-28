@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCIE ENCOR Routing Technologies</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        section {
+            padding: 20px;
+            margin: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+        }
+        h2 {
+            color: #333;
+        }
+        ul {
+            margin-left: 20px;
+        }
+        li {
+            margin: 5px 0;
+        }
+        .content {
+            margin: 0 auto;
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Routing Technologies Tested in CCIE ENCOR Exam</h1>
+</header>
+
+<div class="content">
+    <section>
+        <h2>1. Routing Protocols (30%)</h2>
+        <p>This domain covers the core routing protocols and their configurations in enterprise environments:</p>
+        <ul>
+            <li><strong>Open Shortest Path First (OSPF):</strong>
+                <ul>
+                    <li>OSPFv2 and OSPFv3: Configuration, operation, and troubleshooting of OSPF in IPv4 and IPv6 networks.</li>
+                    <li>OSPF Areas: Implementing single-area and multi-area OSPF designs, including backbone area (Area 0) and non-backbone areas.</li>
+                    <li>OSPF Authentication: Configuring OSPF authentication to secure routing updates.</li>
+                    <li>OSPF Route Summarization: Implementing and troubleshooting route summarization to reduce the size of routing tables.</li>
+                    <li>OSPF Virtual Links: Configuring virtual links for OSPF adjacency across non-contiguous areas.</li>
+                    <li>OSPF LSA Types: Understanding and managing OSPF Link State Advertisements (LSAs), including Type 1 (Router LSA), Type 3 (Network LSA), and Type 5 (External LSA).</li>
+                </ul>
+            </li>
+            <li><strong>Enhanced Interior Gateway Routing Protocol (EIGRP):</strong>
+                <ul>
+                    <li>EIGRP Configuration and Operation: Configuring EIGRP for both IPv4 and IPv6 networks.</li>
+                    <li>EIGRP Metrics: Understanding and adjusting EIGRP metrics (bandwidth, delay, load, reliability).</li>
+                    <li>EIGRP Stub Routing: Configuring and using EIGRP stub routing to reduce network traffic in certain topologies.</li>
+                    <li>EIGRP Named Mode: Implementing EIGRP in named mode to simplify configuration and improve manageability.</li>
+                </ul>
+            </li>
+            <li><strong>Border Gateway Protocol (BGP):</strong>
+                <ul>
+                    <li>EBGP and IBGP Configuration: Configuring and troubleshooting EBGP (external BGP) and IBGP (internal BGP) for both IPv4 and IPv6.</li>
+                    <li>BGP Attributes: Understanding and manipulating BGP path selection using attributes like AS path, local preference, MED (multi-exit discriminator), and community.</li>
+                    <li>BGP Route Filtering: Implementing route filtering techniques such as prefix lists, route maps, and AS path access lists.</li>
+                    <li>BGP Path Selection: Adjusting BGP path selection rules using various methods such as local preference, weight, and MED.</li>
+                    <li>BGP Multihoming: Configuring BGP for multihoming to provide redundancy and load balancing between different service providers.</li>
+                </ul>
+            </li>
+            <li><strong>Static Routing:</strong>
+                <ul>
+                    <li>Basic Static Routing: Configuring static routes for IPv4 and IPv6.</li>
+                    <li>Floating Static Routes: Implementing floating static routes for backup routes when dynamic routing protocols fail.</li>
+                    <li>Default Routing: Configuring default routes to handle traffic destined for unknown networks.</li>
+                </ul>
+            </li>
+            <li><strong>Routing between VLANs (Inter-VLAN Routing):</strong>
+                <ul>
+                    <li>Router-on-a-Stick: Configuring subinterfaces on a router to enable routing between multiple VLANs.</li>
+                    <li>SVI (Switched Virtual Interface): Configuring SVIs on Layer 3 switches to provide inter-VLAN routing.</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>2. Routing Redistribution (15%)</h2>
+        <p>Redistribution involves sharing routing information between different routing protocols. The exam covers:</p>
+        <ul>
+            <li>Redistributing Routes Between Protocols: Configuring and troubleshooting redistribution between different routing protocols such as OSPF, EIGRP, and BGP.</li>
+            <li>Route Maps and Filters: Using route maps to control redistribution and prevent undesirable routing loops or suboptimal paths.</li>
+            <li>Metric Adjustment: Adjusting metrics when redistributing routes to ensure correct routing decisions are made.</li>
+            <li>Redistribution Loops: Preventing routing loops during redistribution using techniques like route filtering, tag-based redistribution, and route maps.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>3. Routing Policy and Path Control (15%)</h2>
+        <p>Path control techniques allow for fine-grained control over routing decisions. Key topics include:</p>
+        <ul>
+            <li>Policy-Based Routing (PBR): Configuring and troubleshooting policy-based routing to influence traffic flow based on criteria other than destination IP.</li>
+            <li>BGP Path Manipulation: Implementing BGP path manipulation techniques, including adjusting AS path, weight, local preference, and MED.</li>
+            <li>Prefix Lists: Creating and using prefix lists for route filtering in various routing protocols.</li>
+            <li>Route Maps: Using route maps for advanced routing policies such as route filtering, redistribution, and path control.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>4. Multicast Routing (10%)</h2>
+        <p>Multicast routing protocols and their configuration are essential for efficient data distribution in enterprise networks:</p>
+        <ul>
+            <li>Protocol Independent Multicast (PIM): Configuring PIM (Sparse Mode, Dense Mode, and Source-Specific Multicast) to enable multicast routing.</li>
+            <li>PIM Sparse Mode (PIM-SM): Configuring and troubleshooting PIM-SM for efficient, scalable multicast routing.</li>
+            <li>IGMP (Internet Group Management Protocol): Understanding and configuring IGMP for managing multicast group memberships.</li>
+            <li>Multicast Routing with BGP: Configuring BGP for multicast routing, particularly for large-scale implementations.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>5. High Availability and Redundancy (10%)</h2>
+        <p>The CCIE ENCOR exam tests knowledge of ensuring high availability in routing:</p>
+        <ul>
+            <li>First Hop Redundancy Protocols (FHRP): Configuring and troubleshooting HSRP (Hot Standby Router Protocol), VRRP (Virtual Router Redundancy Protocol), and GLBP (Gateway Load Balancing Protocol).</li>
+            <li>Routing Protocol Failover: Understanding and configuring routing protocol failover mechanisms, such as EIGRP or OSPF route redistribution in case of link failures.</li>
+            <li>Dual-Homed Connectivity: Implementing redundancy between routers or networks for fault tolerance and high availability.</li>
+            <li>Equal-Cost Multi-Path (ECMP): Configuring and optimizing ECMP for load balancing between multiple routes with equal cost.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>6. IPv6 Routing (10%)</h2>
+        <p>IPv6 is essential for modern routing infrastructure. The exam tests the following:</p>
+        <ul>
+            <li>IPv6 Routing Protocols: Configuring and troubleshooting OSPFv3, EIGRP for IPv6, and BGP for IPv6.</li>
+            <li>Static Routing with IPv6: Configuring IPv6 static routes and floating static routes.</li>
+            <li>IPv6 Addressing: Understanding IPv6 addressing, including global unicast, link-local, and multicast addresses.</li>
+            <li>IPv6 Tunneling: Configuring IPv6 tunneling protocols like GRE and 6to4 to facilitate IPv6 communication across IPv4 networks.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>7. Network Optimization and Troubleshooting (5%)</h2>
+        <p>Network optimization and troubleshooting are key components of the exam:</p>
+        <ul>
+            <li>Traffic Engineering: Configuring and troubleshooting MPLS Traffic Engineering (MPLS-TE) for optimal bandwidth utilization.</li>
+            <li>Troubleshooting Routing Protocols: Identifying and resolving issues in routing protocols, including OSPF, EIGRP, BGP, and IPv6 routing.</li>
+            <li>Path MTU Discovery: Configuring and troubleshooting Path MTU Discovery (PMTUD) to avoid fragmentation in routing.</li>
+        </ul>
+    </section>
+
+</div>
+
+</body>
+</html>

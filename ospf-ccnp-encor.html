@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCNP ENCOR - OSPF Skills</title>
+</head>
+<body>
+    <h1>CCNP ENCOR - OSPF Skills</h1>
+
+    <h2>1. OSPF Configuration and Operation</h2>
+    <ul>
+        <li><strong>OSPFv2</strong>: Configure and verify OSPFv2 for IPv4.</li>
+        <li><strong>OSPFv3</strong>: Configure and verify OSPFv3 for IPv6.</li>
+        <li><strong>OSPF Router ID</strong>: Understand how to set and modify the OSPF Router ID (RID).</li>
+        <li><strong>OSPF Timers</strong>: Configure and adjust OSPF timers such as Hello and Dead intervals.</li>
+        <li><strong>OSPF Neighbors</strong>: Troubleshoot OSPF neighbor relationships, including authentication and DR/BDR election.</li>
+        <li><strong>OSPF Areas</strong>: Configure single-area and multi-area OSPF networks. Understand the concept of Area 0 (backbone area) and non-backbone areas.</li>
+    </ul>
+
+    <h2>2. OSPF Area Types</h2>
+    <ul>
+        <li><strong>Standard Area</strong>: Configure and verify standard OSPF areas.</li>
+        <li><strong>Stub Areas</strong>: Configure stub areas to reduce the size of routing tables and limit external route advertisement.</li>
+        <li><strong>Totally Stubby Areas</strong>: Configure totally stubby areas to further limit the routing table by restricting external routes and summary routes.</li>
+        <li><strong>Not-So-Stubby Areas (NSSA)</strong>: Configure NSSA areas, which allow the injection of external routes in a controlled manner.</li>
+        <li><strong>OSPF Autonomous System Boundary Routers (ASBR)</strong>: Configure ASBRs to handle the redistribution of external routes into OSPF.</li>
+    </ul>
+
+    <h2>3. OSPF Network Types and Topology</h2>
+    <ul>
+        <li><strong>Broadcast Network</strong>: Understand and configure OSPF on Ethernet, FDDI, or other broadcast networks, including the role of DR/BDR.</li>
+        <li><strong>Non-Broadcast Multi-Access (NBMA)</strong>: Configure OSPF on non-broadcast multi-access (NBMA) networks, such as Frame Relay, and adjust OSPF settings for such environments.</li>
+        <li><strong>Point-to-Point Networks</strong>: Configure OSPF on point-to-point networks (such as serial links).</li>
+        <li><strong>OSPF Neighbors on Broadcast and Non-Broadcast Networks</strong>: Verify and troubleshoot OSPF neighbor relationships on broadcast and NBMA networks.</li>
+    </ul>
+
+    <h2>4. OSPF Cost and Path Selection</h2>
+    <ul>
+        <li><strong>Cost Calculation</strong>: Understand how OSPF calculates the cost of routes using bandwidth and how to adjust OSPF cost manually to influence path selection.</li>
+        <li><strong>Route Summarization</strong>: Implement OSPF route summarization to reduce the size of routing tables, including both manual and automatic summarization.</li>
+        <li><strong>OSPF Load Balancing</strong>: Enable and verify OSPF Equal-Cost Multi-Path (ECMP) load balancing.</li>
+    </ul>
+
+    <h2>5. OSPF Authentication</h2>
+    <ul>
+        <li><strong>OSPF Authentication Types</strong>: Configure OSPF MD5 authentication to secure OSPF routing exchanges between routers.</li>
+    </ul>
+
+    <h2>6. OSPF Troubleshooting</h2>
+    <ul>
+        <li><strong>OSPF Database</strong>: Understand and troubleshoot OSPF LSDB (Link-State Database) and LSR (Link-State Request) types.</li>
+        <li><strong>OSPF Neighbor States</strong>: Troubleshoot common OSPF neighbor states such as INIT, 2-WAY, EXSTART, EXCHANGE, and FULL.</li>
+        <li><strong>OSPF Show Commands</strong>: Use <code>show ip ospf neighbor</code>, <code>show ip ospf</code>, <code>show ip ospf interface</code>, and other related commands to troubleshoot OSPF configurations.</li>
+        <li><strong>OSPF Routing Table</strong>: Understand the OSPF routing table, LSAs (Link-State Advertisements), and how OSPF calculates the best path.</li>
+    </ul>
+
+    <h2>7. OSPF Redistribution</h2>
+    <ul>
+        <li><strong>Redistribution Between OSPF and Other Protocols</strong>: Understand how to redistribute routes between OSPF and other routing protocols like EIGRP, BGP, and static routes.</li>
+        <li><strong>Route Filtering</strong>: Use route maps, prefix lists, and distribute lists to filter routes during redistribution.</li>
+    </ul>
+
+    <h2>8. OSPF Design and Best Practices</h2>
+    <ul>
+        <li><strong>OSPF Design Guidelines</strong>: Design OSPF networks with optimal area structure, considering factors like number of routers, scalability, and fault tolerance.</li>
+        <li><strong>OSPF Backbone Area</strong>: Understand the importance of the backbone area (Area 0) and ensure that all areas connect to it.</li>
+    </ul>
+
+</body>
+</html>
