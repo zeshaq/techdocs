@@ -1,1 +1,142 @@
-test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Layout with Navbars</title>
+    <style>
+        /* Basic CSS for layout */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Top Navbar */
+        #top-navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        #top-navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        #top-navbar li {
+            padding: 10px;
+        }
+
+        #top-navbar a {
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Left Sidebar */
+        #left-sidebar {
+            width: 250px;
+            background-color: #333;
+            color: white;
+            position: fixed;
+            top: 50px; /* Push below the top navbar */
+            bottom: 0;
+            padding-top: 20px;
+            overflow-y: auto;
+        }
+
+        #left-sidebar ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        #left-sidebar li {
+            padding: 8px;
+        }
+
+        #left-sidebar li a {
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Content Area */
+        #content {
+            margin-left: 270px; /* Space for left sidebar */
+            margin-top: 60px;  /* Space for top navbar */
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        /* Tree Navigation Style */
+        .tree ul {
+            padding-left: 20px;
+        }
+
+        .tree li {
+            list-style-type: none;
+        }
+
+        .tree li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .tree li a:hover {
+            background-color: #555;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <div id="top-navbar">
+        <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+    </div>
+
+    <!-- Left Sidebar with Tree Navigation -->
+    <div id="left-sidebar">
+        <div class="tree">
+            <ul>
+                <li><a href="#">Item 1</a>
+                    <ul>
+                        <li><a href="#">Subitem 1.1</a></li>
+                        <li><a href="#">Subitem 1.2</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Item 2</a>
+                    <ul>
+                        <li><a href="#">Subitem 2.1</a></li>
+                        <li><a href="#">Subitem 2.2</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Item 3</a>
+                    <ul>
+                        <li><a href="#">Subitem 3.1</a></li>
+                        <li><a href="#">Subitem 3.2</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div id="content">
+        <h1>Welcome to the Content Area</h1>
+        <p>This is where the main content will be displayed. You can replace this text with your actual content.</p>
+    </div>
+
+</body>
+</html>
