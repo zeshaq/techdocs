@@ -17,11 +17,14 @@
         #top-navbar {
             background-color: #333;
             color: white;
-            padding: 10px;
+            padding: 15px;
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         #top-navbar ul {
@@ -29,7 +32,6 @@
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: flex-end;
         }
 
         #top-navbar li {
@@ -39,6 +41,12 @@
         #top-navbar a {
             color: white;
             text-decoration: none;
+        }
+
+        #top-navbar .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
         }
 
         /* Left Sidebar */
@@ -99,6 +107,7 @@
 
     <!-- Top Navbar -->
     <div id="top-navbar">
+        <a href="#" class="logo">My Website</a>
         <ul>
             <li><a href="#">Home</a></li>
             <li><a href="#">About</a></li>
