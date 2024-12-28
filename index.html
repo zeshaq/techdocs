@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Layout with Navbars</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery -->
     <style>
         /* Basic CSS for layout */
         body {
@@ -73,6 +74,11 @@
         #left-sidebar li a {
             color: white;
             text-decoration: none;
+            cursor: pointer;
+        }
+
+        #left-sidebar li a:hover {
+            background-color: #555;
         }
 
         /* Content Area */
@@ -81,6 +87,7 @@
             margin-top: 60px;  /* Space for top navbar */
             padding: 20px;
             flex-grow: 1;
+            background-color: #f4f4f4;
         }
 
         /* Tree Navigation Style */
@@ -119,22 +126,22 @@
     <div id="left-sidebar">
         <div class="tree">
             <ul>
-                <li><a href="#">Item 1</a>
+                <li><a href="#" class="sidebar-link" data-page="item1">Item 1</a>
                     <ul>
-                        <li><a href="#">Subitem 1.1</a></li>
-                        <li><a href="#">Subitem 1.2</a></li>
+                        <li><a href="#" class="sidebar-link" data-page="subitem1-1">Subitem 1.1</a></li>
+                        <li><a href="#" class="sidebar-link" data-page="subitem1-2">Subitem 1.2</a></li>
                     </ul>
                 </li>
-                <li><a href="#">Item 2</a>
+                <li><a href="#" class="sidebar-link" data-page="item2">Item 2</a>
                     <ul>
-                        <li><a href="#">Subitem 2.1</a></li>
-                        <li><a href="#">Subitem 2.2</a></li>
+                        <li><a href="#" class="sidebar-link" data-page="subitem2-1">Subitem 2.1</a></li>
+                        <li><a href="#" class="sidebar-link" data-page="subitem2-2">Subitem 2.2</a></li>
                     </ul>
                 </li>
-                <li><a href="#">Item 3</a>
+                <li><a href="#" class="sidebar-link" data-page="item3">Item 3</a>
                     <ul>
-                        <li><a href="#">Subitem 3.1</a></li>
-                        <li><a href="#">Subitem 3.2</a></li>
+                        <li><a href="#" class="sidebar-link" data-page="subitem3-1">Subitem 3.1</a></li>
+                        <li><a href="#" class="sidebar-link" data-page="subitem3-2">Subitem 3.2</a></li>
                     </ul>
                 </li>
             </ul>
@@ -146,6 +153,27 @@
         <h1>Welcome to the Content Area</h1>
         <p>This is where the main content will be displayed. You can replace this text with your actual content.</p>
     </div>
+
+    <script>
+        // jQuery to handle click on sidebar links and load content
+        $(document).ready(function() {
+            $(".sidebar-link").click(function(e) {
+                e.preventDefault(); // Prevent the default link behavior
+                
+                // Get the 'data-page' attribute of the clicked link
+                var page = $(this).data("page");
+                
+                // Load the corresponding page content using AJAX
+                $("#content").html('<p>Loading ' + page + ' content...</p>');
+                
+                // Simulating an AJAX request to load the page content
+                setTimeout(function() {
+                    // Simulate loading of content
+                    $("#content").html('<h2>Content for ' + page + '</h2><p>This is the dynamic content for ' + page + '.</p>');
+                }, 1000);
+            });
+        });
+    </script>
 
 </body>
 </html>
