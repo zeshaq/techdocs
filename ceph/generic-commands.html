@@ -42,10 +42,35 @@ ceph osd pool ls
 ceph mon stat
 ceph quorum_status --format json-pretty
 
+monmap backup
+ceph mon getmap -o monmap.backup
 
 
 <h3>check auth on osds</h3>
 ceph auth list
+
+
+
+
+<h3> Crushmap related commands</h3>
+
+ceph osd getcrushmap -o crushmap.bin
+
+<h4>decompile crushmap</h4>
+crushtool -d crushmap.bin -o crushmap.txt
+
+<h4>verify integrity</h4>
+diff crushmap.bin crushmap-test.bin
+
+<h4>txt to bin</h4>
+crushtool -c crushmap.txt -o crushmap.bin
+
+<h4>inject crushmap</h4>
+ceph osd setcrushmap -i crushmap.bin
+
+
+<h4>Verify crushmp</h4>
+ceph osd crush dump
 
 </pre>
  
