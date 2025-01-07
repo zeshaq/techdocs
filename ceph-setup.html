@@ -1,1 +1,26 @@
 
+
+juju add-model --config default-series=jammy ceph
+juju deploy -n 3 --channel reef/stable  --config osd-devices="/dev/sdb /dev/sdc /dev/sdd" --constraints tags=osd ceph-osd
+
+
+juju deploy -n 3   --constraints tags=mon   ceph-mon  
+
+
+
+juju deploy   --channel reef/stable ceph-dashboard
+
+
+juju deploy  --channel 1.8/stable vault   --to lxd:0 
+juju config vault  auto-generate-root-ca-cert=true
+juju config vault totally-unsecure-auto-unlock=true
+
+
+juju integrate ceph-dashboard:certificates vault:certificates
+juju integrate ceph-dashboard:dashboard ceph-mon:dashboard
+juju integrate ceph-osd:mon ceph-mon:osd
+
+
+juju run ceph-dashboard/0 add-user username=admin role=administrator
+admin 1dXojSx7aqHY
+https://15.15.0.33:8443
