@@ -1,5 +1,4 @@
-
-
+<p>
 juju add-model --config default-series=jammy ceph
 juju deploy -n 3 --channel reef/stable  --config osd-devices="/dev/sdb /dev/sdc /dev/sdd" --constraints tags=osd ceph-osd
 
@@ -24,3 +23,4 @@ juju integrate ceph-osd:mon ceph-mon:osd
 juju run ceph-dashboard/0 add-user username=admin role=administrator
 admin 1dXojSx7aqHY
 https://15.15.0.33:8443
+</p>
