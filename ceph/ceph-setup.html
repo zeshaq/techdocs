@@ -3,7 +3,7 @@ juju add-model --config default-series=jammy ceph
 juju deploy -n 3 --channel reef/stable  --config osd-devices="/dev/sdb /dev/sdc /dev/sdd" --constraints tags=osd ceph-osd
 
 
-juju deploy -n 3   --constraints tags=mon   ceph-mon  
+juju deploy -n 3 --channel reef/stable  --constraints tags=mon   ceph-mon  
 
 
 
