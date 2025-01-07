@@ -10,7 +10,7 @@ juju deploy -n 3   --constraints tags=mon   ceph-mon
 juju deploy   --channel reef/stable ceph-dashboard
 
 
-juju deploy  --channel 1.8/stable vault   --to lxd:0 
+juju deploy  --channel 1.8/stable --constraints tags=vault vault   
 juju config vault  auto-generate-root-ca-cert=true
 juju config vault totally-unsecure-auto-unlock=true
 
