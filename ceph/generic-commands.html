@@ -4,5 +4,38 @@
 
     juju destroy-model ceph --force --no-wait
 
+
+
+
   </pre>
+
+<h1>install ceph client</h1>
+
+<code>
+  sudo apt update
+sudo apt install ceph ceph-common ceph-fuse
+ceph --version
+
+#copy ceph conf file to local machines /etc/ceph folder 
+
+//run on osd node 
+juju scp ceph-osd/0:/etc/ceph/ceph.conf /etc/ceph/ceph.conf
+
+//copy keyring from ceph-mon  (need to manually copy paste)
+
+scp ceph-mon/0:/etc/ceph/ceph.client.admin.keyring /etc/ceph/ceph.client.admin.keyring
+
+
+sudo chmod 644 /etc/ceph/ceph.conf
+sudo chmod 644 /etc/ceph/ceph.client.admin.keyring
+
+
+ceph -s
+ceph osd tree
+ceph osd stat
+ceph mon stat
+ceph osd pool ls
+
+
+</code>
 </code>
