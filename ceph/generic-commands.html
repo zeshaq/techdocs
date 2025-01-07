@@ -33,9 +33,19 @@ sudo chmod 644 /etc/ceph/ceph.client.admin.keyring
 ceph -s
 ceph osd tree
 ceph osd stat
-ceph mon stat
+
 ceph osd pool ls
 
+
+<h3>ceph mon related commands</h3>
+
+ceph mon stat
+ceph quorum_status --format json-pretty
+
+
+
+<h3>check auth on osds</h3>
+ceph auth list
 
 </code>
 </code>
