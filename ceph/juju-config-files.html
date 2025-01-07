@@ -1,0 +1,118 @@
+<pre>
+
+  Files and Directories Affected on Ceph-OSD Nodes
+1. Cluster Configuration File (ceph.conf)
+Location: /etc/ceph/ceph.conf
+
+This is the main configuration file for Ceph. When Juju adds Ceph-Mon to Ceph-OSD, the ceph.conf file is either created or updated with:
+
+Monitor Addresses: A list of all monitor IPs and ports in the cluster is added under the mon host directive.
+Cluster FSID: The unique identifier of the Ceph cluster (fsid), which ensures that the OSD is joining the correct cluster.
+Global Settings: Other Ceph options, such as the data replication level, network settings, or debug options, may also be included or modified.
+Example Updated ceph.conf:
+
+ini
+Copy code
+[global]
+fsid = 123e4567-e89b-12d3-a456-426614174000
+mon host = 10.0.0.1:6789,10.0.0.2:6789,10.0.0.3:6789
+auth cluster required = cephx
+auth service required = cephx
+auth client required = cephx
+osd journal size = 5120
+osd pool default size = 3
+This file is updated dynamically by the Ceph-Mon charm, and Juju ensures the file is distributed to all OSD nodes.
+
+2. Keyring Files
+(a) Admin Keyring (ceph.client.admin.keyring):
+
+Location: /etc/ceph/ceph.client.admin.keyring
+This keyring contains the credentials for the Ceph admin user, which allows the OSD to authenticate with monitors and interact with the cluster.
+(b) OSD-Specific Keyrings:
+
+Location: /var/lib/ceph/osd/ceph-<id>/keyring
+
+Each OSD daemon has its own keyring file containing a unique key. This key is used by the OSD to authenticate itself to the monitors when joining or rejoining the cluster.
+
+Example Keyring Content:
+
+ini
+Copy code
+[osd.<id>]
+    key = AQBs0XtZAAAABUAADhAeRMAflCMZPjCoLVS
+    caps mon = "allow profile osd"
+    caps osd = "allow *"
+Juju handles the creation and secure distribution of these keyrings when the ceph-mon charm is related to the ceph-osd charm.
+
+3. Monitor Map (monmap)
+Location: /var/lib/ceph/osd/ceph-<id>/activate.monmap
+
+The monitor map is a binary file that contains the current state of all monitors in the Ceph cluster, including:
+
+Monitor IPs and ports.
+Monitor IDs.
+Their roles in the quorum.
+The monitor map is essential for OSDs to connect to the cluster. When new monitors are added or removed, the monmap is updated dynamically via Juju and distributed to all OSD nodes.
+
+How to View the Monitor Map: You can dump the monitor map for inspection using the following commands:
+
+bash
+Copy code
+ceph osd getmap -o /tmp/monmap
+ceph-mon --dump-monmap -i /tmp/monmap
+4. Cluster FSID
+Location: /var/lib/ceph/osd/ceph-<id>/fsid
+
+This file contains the FSID of the cluster. It ensures that the OSD is part of the correct Ceph cluster, especially in environments where multiple clusters might exist.
+
+Example Content:
+
+Copy code
+123e4567-e89b-12d3-a456-426614174000
+If the FSID in this file does not match the FSID in ceph.conf, the OSD will fail to join the cluster.
+
+5. Log Files
+Location: /var/log/ceph/ceph-osd.<id>.log
+These logs record the activity of each OSD, including interactions with monitors, errors, and status updates. If the OSD fails to join the cluster, these logs are a critical troubleshooting resource.
+Processes Triggered by Juju
+Configuration Sync:
+
+When the ceph-mon charm is related to the ceph-osd charm, Juju ensures that all necessary configuration files (ceph.conf, keyrings, etc.) are synchronized from the monitor nodes to the OSD nodes.
+OSD Registration:
+
+Each OSD daemon is registered with the monitors using its keyring. This step is handled automatically, but you can verify it using the following command:
+bash
+Copy code
+ceph osd tree
+This command shows the hierarchy of OSDs in the cluster, indicating successful registration.
+Monitor Communication:
+
+The OSD nodes establish connections with the monitors using the monmap. This step ensures that the OSDs can report their status and receive cluster updates.
+Dynamic Updates:
+
+If the monitor topology changes (e.g., new monitors are added), the ceph.conf and monmap files are automatically updated and propagated to all OSD nodes by Juju.
+How to Verify the Changes on OSD Nodes
+Check the ceph.conf File: Verify that the monitor IPs and FSID are correctly listed:
+
+bash
+Copy code
+cat /etc/ceph/ceph.conf
+Inspect the Keyring Files: Confirm that the keyrings exist and contain valid credentials:
+
+bash
+Copy code
+ls -l /var/lib/ceph/osd/ceph-<id>/keyring
+Verify Monitor Connectivity: Use the ceph osd tree command to ensure that the OSDs are listed and online.
+
+Check Logs: Review the OSD logs for any errors or warnings:
+
+bash
+Copy code
+tail -f /var/log/ceph/ceph-osd.<id>.log
+Check Cluster Health: Use the following command to confirm the cluster is healthy and all OSDs are communicating with the monitors:
+
+bash
+Copy code
+ceph health detail
+By automating the distribution of these files and processes, Juju significantly simplifies the setup and management of Ceph clusters, ensuring that all nodes are correctly configured and synchronized.
+</pre>
