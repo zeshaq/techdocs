@@ -6,41 +6,43 @@ juju run ceph-osd/1 stop osds=all
 juju run ceph-osd/2 stop osds=all
 
 
+systemctl status ceph-mon@monitor-vm-5.service
+systemctl stop ceph-mon@monitor-vm-5.service
+systemctl stop ceph-mgr@monitor-vm-5.service
 
-systemctl stop ceph-mon@ceph-mon-4.service
-systemctl stop ceph-mgr@ceph-mon-4.service
+
+systemctl status ceph-mon@monitor-vm-4.service
+systemctl stop ceph-mon@monitor-vm-4.service
+systemctl stop ceph-mgr@monitor-vm-4.service
 
 
-systemctl stop ceph-mon@ceph-mon-2.service
-systemctl stop ceph-mgr@ceph-mon-2.service
-
-systemctl stop ceph-mon@ceph-mon-5.service
-systemctl stop ceph-mgr@ceph-mon-5.service
-
+systemctl status ceph-mon@monitor-vm-3.service
+systemctl stop ceph-mon@monitor-vm-3.service
+systemctl stop ceph-mgr@monitor-vm-3.service
 
 //get script from garr and run garr.sh
 
 [mon.]
-        key = AQCvlX1nBT3NABAAQOxs4voGQdxbaj09VZ2OhQ==
+        key = AQBUiX5nhz1qJRAASAHI5uNgTeg2hqu5pFycVA==
         caps mon = "allow *"
 [client.admin]
-        key = AQDJlX1nZyEjBxAA7hS7RSzXQTzxBGpjzRI6iw==
+        key = AQB3iX5nGz5IDBAAec6L8RmYBy7LuRrN6PBj5w==
         caps mds = "allow *"
         caps mgr = "allow *"
         caps mon = "allow *"
         caps osd = "allow *"
-[mgr.ceph-mon-4]
-        key = AQDMlX1nY5y/GRAAhbtXx05hTTr0xR8ayr99Ug==
+[mgr.monitor-vm-5]
+        key = AQB4iX5n/XP6KRAA93d6HWqa0qgJ74pNeAumAg==
         caps mds = "allow *"
         caps mon = "allow profile mgr"
         caps osd = "allow *"
-[mgr.ceph-mon-2]
-        key = AQDKlX1nY2cEHBAARatScT0tJeyrOQ+PyJZAMA==
+[mgr.monitor-vm-4]
+        key = AQB6iX5n2Fw9IBAAa8NNWit4DSoAiLoLtMWNfQ==
         caps mds = "allow *"
         caps mon = "allow profile mgr"
         caps osd = "allow *"
-[mgr.ceph-mon-5]
-        key = AQDKlX1ncO+iHxAABmlcIx7oXY1dLwbmFky6dw==
+[mgr.monitor-vm-3]
+        key = AQB3iX5n0tB8HRAAcg6XTsGQI7UeS2RAGQwsjg==
         caps mds = "allow *"
         caps mon = "allow profile mgr"
         caps osd = "allow *"
@@ -49,46 +51,43 @@ systemctl stop ceph-mgr@ceph-mon-5.service
 copy the above to a file name keyring 
 
 
+juju scp -- -r mon-store keyring ceph-mon/3:/tmp
 juju scp -- -r mon-store keyring ceph-mon/4:/tmp
 juju scp -- -r mon-store keyring ceph-mon/5:/tmp
-juju scp -- -r mon-store keyring ceph-mon/6:/tmp
 
 
 
 
-ceph-monstore-tool /tmp/mon-store/ rebuild --keyring /tmp/keyring --mon-ids ceph-mon-4 ceph-mon-5 ceph-mon-2
+ceph-monstore-tool /tmp/mon-store/ rebuild --keyring /tmp/keyring --mon-ids monitor-vm-5 monitor-vm-4 monitor-vm-3
 
 //run the above in all 3 mons 
 
 
-mv /var/lib/ceph/mon/ceph-ceph-mon-4/store.db /var/lib/ceph/mon/ceph-ceph-mon-4/store.db.bak
-cp -r /tmp/mon-store/store.db /var/lib/ceph/mon/ceph-ceph-mon-4/store.db
-chown ceph:ceph -R /var/lib/ceph/mon/ceph-ceph-mon-4/store.db
 
 
-mv /var/lib/ceph/mon/ceph-ceph-mon-2/store.db /var/lib/ceph/mon/ceph-ceph-mon-2/store.db.bak
-cp -r /tmp/mon-store/store.db /var/lib/ceph/mon/ceph-ceph-mon-2/store.db
-chown ceph:ceph -R /var/lib/ceph/mon/ceph-ceph-mon-2/store.db
+mv /var/lib/ceph/mon/ceph-monitor-vm-5/store.db /var/lib/ceph/mon/ceph-monitor-vm-5/store.db.bak
+cp -r /tmp/mon-store/store.db /var/lib/ceph/mon/ceph-monitor-vm-5/store.db
+chown ceph:ceph -R /var/lib/ceph/mon/ceph-monitor-vm-5/store.db
 
+mv /var/lib/ceph/mon/ceph-monitor-vm-4/store.db /var/lib/ceph/mon/ceph-monitor-vm-4/store.db.bak
+cp -r /tmp/mon-store/store.db /var/lib/ceph/mon/ceph-monitor-vm-4/store.db
+chown ceph:ceph -R /var/lib/ceph/mon/ceph-monitor-vm-4/store.db
 
-mv /var/lib/ceph/mon/ceph-ceph-mon-5/store.db /var/lib/ceph/mon/ceph-ceph-mon-5/store.db.bak
-cp -r /tmp/mon-store/store.db /var/lib/ceph/mon/ceph-ceph-mon-5/store.db
-chown ceph:ceph -R /var/lib/ceph/mon/ceph-ceph-mon-5/store.db
-
-
-
-
+mv /var/lib/ceph/mon/ceph-monitor-vm-3/store.db /var/lib/ceph/mon/ceph-monitor-vm-3/store.db.bak
+cp -r /tmp/mon-store/store.db /var/lib/ceph/mon/ceph-monitor-vm-3/store.db
+chown ceph:ceph -R /var/lib/ceph/mon/ceph-monitor-vm-3/store.db
+ 
 
 systemctl start ceph-mon@ceph-mon-4.service
 systemctl start ceph-mgr@ceph-mon-4.service
 
 
-systemctl start ceph-mon@ceph-mon-2.service
-systemctl start ceph-mgr@ceph-mon-2.service
-
 systemctl start ceph-mon@ceph-mon-5.service
 systemctl start ceph-mgr@ceph-mon-5.service
 
+
+systemctl start ceph-mon@ceph-mon-2.service
+systemctl start ceph-mgr@ceph-mon-2.service
 
 
 

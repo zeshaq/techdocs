@@ -1,0 +1,172 @@
+# Step-by-Step Instructions to Restore a Ceph Cluster Deployed Using Juju After Ceph-Mon Loss
+
+Restoring a Ceph cluster managed by Juju after losing all Ceph monitors requires careful steps to regenerate the necessary metadata and restore functionality. Below is the step-by-step guide:
+
+---
+
+## Step 1: Stop All Ceph Services
+Stop all Ceph services on the nodes to prevent further changes:
+```bash
+sudo systemctl stop ceph*
+```
+Alternatively, if managed by Juju, you can stop the services:
+```bash
+juju run --application ceph-osd "sudo systemctl stop ceph-osd.target"
+```
+
+---
+
+## Step 2: Redeploy Ceph-Mon with Juju
+
+### 1. Redeploy the `ceph-mon` Application:
+If the `ceph-mon` application is no longer present, redeploy it:
+```bash
+juju deploy ceph-mon
+```
+
+### 2. Add Units to Match Original Deployment:
+Add the same number of Ceph monitor units as before:
+```bash
+juju add-unit -n <number-of-monitors> ceph-mon
+```
+
+### 3. Verify Deployment:
+Ensure the new `ceph-mon` units are running:
+```bash
+juju status
+```
+
+---
+
+## Step 3: Gather Cluster Information from OSDs
+
+### 1. Retrieve Cluster FSID:
+Extract the FSID from one of the OSDs:
+```bash
+juju run --unit ceph-osd/0 "ceph-volume lvm list | grep 'osd fsid'"
+```
+
+### 2. Retrieve OSD Keyrings:
+Locate the keyring for OSDs:
+```bash
+juju run --unit ceph-osd/0 "cat /var/lib/ceph/osd/ceph-*/keyring"
+```
+
+### 3. Extract the CRUSH Map:
+Retrieve the CRUSH map from one of the OSDs:
+```bash
+juju run --unit ceph-osd/0 "ceph-objectstore-tool --data-path /var/lib/ceph/osd/ceph-<osd-id> --op dump --crushmap > /tmp/crushmap"
+```
+Copy the file locally if needed:
+```bash
+juju scp ceph-osd/0:/tmp/crushmap ./crushmap
+```
+
+### 4. Extract Authentication Keys:
+Get the keys for other Ceph components:
+```bash
+juju run --unit ceph-osd/0 "cat /var/lib/ceph/bootstrap-osd/ceph.keyring"
+juju run --unit ceph-osd/0 "cat /var/lib/ceph/bootstrap-mds/ceph.keyring"
+```
+
+---
+
+## Step 4: Recreate the Monmap
+
+### 1. Create a New Monmap:
+Use the FSID gathered earlier:
+```bash
+monmaptool --create --fsid <fsid> /tmp/monmap
+```
+
+### 2. Add Monitors:
+For each monitor, specify its name and IP address:
+```bash
+monmaptool --add <mon-name> <mon-ip>:6789 /tmp/monmap
+```
+
+### 3. Verify the Monmap:
+```bash
+monmaptool --print /tmp/monmap
+```
+
+---
+
+## Step 5: Initialize Monitors
+
+### 1. Stop Monitor Services:
+Ensure no monitor services are running:
+```bash
+juju run --application ceph-mon "sudo systemctl stop ceph-mon@*"
+```
+
+### 2. Initialize Monitor Data Directory:
+Reinitialize for each monitor:
+```bash
+juju run --unit ceph-mon/0 "ceph-mon --mkfs -i <mon-id> --monmap /tmp/monmap --keyring /etc/ceph/ceph.client.admin.keyring"
+```
+
+### 3. Start Monitor Services:
+Restart the monitor services:
+```bash
+juju run --application ceph-mon "sudo systemctl start ceph-mon@*"
+```
+
+---
+
+## Step 6: Reinject the CRUSH Map
+
+### 1. Decompile the CRUSH Map:
+```bash
+crushtool -d crushmap -o crushmap.txt
+```
+
+### 2. Edit the CRUSH Map (if necessary):
+Make adjustments as needed in `crushmap.txt`.
+
+### 3. Recompile the CRUSH Map:
+```bash
+crushtool -c crushmap.txt -o crushmap
+```
+
+### 4. Inject the CRUSH Map:
+```bash
+juju run --unit ceph-mon/0 "ceph osd setcrushmap -i /tmp/crushmap"
+```
+
+---
+
+## Step 7: Reauthenticate and Reintegrate OSDs
+
+### 1. Add OSD Authentication Keys:
+Re-add the keys for each OSD:
+```bash
+juju run --unit ceph-osd/0 "ceph auth add osd.<osd-id> osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-<osd-id>/keyring"
+```
+
+### 2. Reintegrate OSDs:
+Bring the OSDs back into the cluster:
+```bash
+juju run --unit ceph-osd/0 "ceph osd crush add osd.<osd-id> <weight> host=<host> root=default"
+```
+
+---
+
+## Step 8: Verify Cluster Health
+Check the cluster status:
+```bash
+juju run --unit ceph-mon/0 "ceph -s"
+```
+- Ensure all monitors and OSDs are "up" and "in."
+- Resolve any warnings or errors.
+
+---
+
+## Precautions
+1. **Backups:** Regularly back up the `monmap`, `crushmap`, and keyrings.
+2. **Monitor Redundancy:** Always maintain at least three monitors for high availability.
+3. **Testing:** Test recovery processes in a lab environment to avoid downtime.
+
+---
+
+If additional assistance is required, feel free to ask!
