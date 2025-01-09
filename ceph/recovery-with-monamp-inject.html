@@ -1,0 +1,20 @@
+ 1. juju config ceph-mon monitor-count=1
+ 2. reboot or do something to take the only ceph-mon unit to Unit not clustered (no quorum)
+ 3. ssh to only ceph-mon unit
+  4. systemctl stop ceph-mon@monitor-vm-5.service
+systemctl stop ceph-mgr@monitor-vm-5.service
+ 5. make a new folder in a home folder so it is accessible via juju scp . sudu chmod -R 777
+  6. ceph-mon -i monitor-vm-5 --extract-monmap /home/ubuntu/ceph-mon-working/monmap-original
+ 7. cp to monmap-mod
+  8. monmaptool --print monmap both
+  9. remove all other units    monmaptool --rm monitor-vm-132 monmap-mod
+  10. print monmap-mod and verify
+ 11. inject    ceph-mon -i monitor-vm-5 --inject-monmap monmap-mod
+  12. alternative command ceph-mon --mkfs -i monitor-vm-5 --monmap monmap-new  //does not seem to work always. Sometimes work
+  13. very important * make sure original monmap is stored in multiple folders****
+  14. systemctl start mon and mgr. verify they are active
+  15.  reboot
+  16. ceph-mon config monitor-count to 3
+  17.  if monitor is in peering mode, give some time for activities to finish. 
+tail -f /var/log/ceph/ceph-mon.*.log
+  18.   Check logs with  add 2 more units.

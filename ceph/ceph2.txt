@@ -76,7 +76,7 @@ juju run --unit ceph-osd/0 "cat /var/lib/ceph/bootstrap-mds/ceph.keyring"
 ### 1. Create a New Monmap:
 Use the FSID gathered earlier:
 ```bash
-monmaptool --create --fsid <fsid> /tmp/monmap
+monmaptool --create --fsid 8399aa3c-cdf1-11ef-bca1-51ece06d66cb /tmp/monmap
 ```
 
 ### 2. Add Monitors:

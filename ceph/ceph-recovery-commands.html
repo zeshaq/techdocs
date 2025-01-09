@@ -4,7 +4,7 @@ juju destroy-model ceph --force --no-wait
 
 juju add-model --config default-series=jammy ceph
 juju deploy -n 3 --channel reef/stable  --config osd-devices="/dev/sdb /dev/sdc /dev/sdd" --constraints tags=osd ceph-osd
-juju deploy -n 3 --channel reef/stable  --constraints tags=mon   ceph-mon  
+juju deploy -n 1  --config monitor-count=1 --channel reef/stable  --constraints tags=mon   ceph-mon  
 juju integrate ceph-osd:mon ceph-mon:osd
 
  
@@ -27,15 +27,11 @@ cat /var/lib/ceph/mgr/ceph-ceph-mon-4/keyring
 
 recovering ceph guides: 
 
-1. get fsid   da5ad654-cd63-11ef-835a-3d7955d11f83
+becedca8-ce0a-11ef-99f0-27d10b0ae698
 
-0c6a37a6-cdc4-11ef-94a6-739829eede47
+juju deploy ceph-mon -n 1 --config monitor-count=1   --constraints tags=mon --config fsid='becedca8-ce0a-11ef-99f0-27d10b0ae698'   
 
-juju deploy ceph-mon -n 3   --constraints tags=mon --config fsid='0c6a37a6-cdc4-11ef-94a6-739829eede47'   
 
-juju run-action --wait ceph-osd/0 stop osds=all
-juju run-action --wait ceph-osd/6 osd-in osds=all
-juju run-action --wait ceph-osd/6 osd-out osds=all
 
 
 
@@ -69,3 +65,54 @@ ceph-monstore-tool /tmp/mon-store/ rebuild --keyring /tmp/keyring --mon-ids moni
 
 
 monmaptool --print /var/lib/ceph/osd/ceph-0/activate.monmap
+systemctl list-units --type=service | grep ceph-mon
+ps aux | grep ceph-mon.service
+
+
+
+
+
+
+ceph osd pool create rbd_pool 128 128
+
+rbd create myrbd1 --size 140 --pool rbd_pool
+rbd create myrbd2 --size 140 --pool rbd_pool
+rbd create myrbd12 --size 140 --pool rbd_pool
+rbd create myrbd13 --size 140 --pool rbd_pool
+rbd create myrbd14 --size 140 --pool rbd_pool
+rbd ls -p rbd_pool
+
+
+
+
+
+tail -f /var/log/ceph/ceph-mon.*.log
+
+
+ceph-mon -i monitor-vm-5 --extract-monmap /home/ubuntu/ceph-mon-working/monmap-original
+
+service ceph -a stop mon.{mon-id}
+ceph-mon -i ID --inject-monmap /tmp/monmap
+
+
+systemctl stop ceph-mon@monitor-vm-5.service
+systemctl stop ceph-mgr@monitor-vm-5.service
+
+
+systemctl start ceph-mon@monitor-vm-5.service
+systemctl start ceph-mgr@monitor-vm-5.service
+
+systemctl status ceph-mon@monitor-vm-5.service
+systemctl status ceph-mgr@monitor-vm-5.service
+
+
+
+monmaptool --rm monitor-vm-132 monmap
+
+
+ceph-mon --mkfs -i monitor-vm-5 --monmap monmap-new  //does not seem to work always. Sometimes work
+monmaptool --print monmap
+
+
+
+ceph-mon -i monitor-vm-5 --inject-monmap monmap-new

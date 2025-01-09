@@ -1,0 +1,68 @@
+
+juju destroy-model ceph --force --no-wait
+
+juju add-model --config default-series=jammy ceph
+juju deploy -n 3 --channel reef/stable  --config osd-devices="/dev/sdb /dev/sdc /dev/sdd" --constraints tags=osd ceph-osd
+juju deploy -n 3  --config monitor-count=3 --channel reef/stable  --constraints tags=mon   ceph-mon  
+juju integrate ceph-osd:mon ceph-mon:osd
+
+ 
+
+
+ceph osd pool create rbd_pool 128 128
+
+rbd create myrbd1 --size 140 --pool rbd_pool
+rbd create myrbd2 --size 140 --pool rbd_pool
+rbd create myrbd12 --size 140 --pool rbd_pool
+rbd create myrbd13 --size 140 --pool rbd_pool
+rbd create myrbd14 --size 140 --pool rbd_pool
+rbd ls -p rbd_pool
+
+
+
+
+
+juju run ceph-osd/0 osd-out osds=all
+juju run ceph-osd/1 osd-out osds=all
+juju run ceph-osd/2 osd-out osds=all
+
+
+
+
+juju run ceph-osd/0 stop osds=all
+juju run ceph-osd/1 stop osds=all
+juju run ceph-osd/2 stop osds=all
+
+
+
+juju remove-application ceph-mon 
+
+
+juju deploy ceph-mon -n 1 --config monitor-count=1   --constraints tags=mon
+
+juju integrate ceph-osd ceph-mon 
+
+juju resolved ceph-mon/1 --no-retry
+
+
+
+
+juju run ceph-osd/0 osd-in osds=all
+juju run ceph-osd/1 osd-in osds=all
+juju run ceph-osd/2 osd-in osds=all
+
+
+
+
+juju run ceph-osd/0 start osds=all
+juju run ceph-osd/1 start osds=all
+juju run ceph-osd/2 start osds=all
+
+
+juju ssh ceph-osd/0 sudo reboot
+juju ssh ceph-osd/1 sudo reboot
+juju ssh ceph-osd/2 sudo reboot
+
+
+
+juju run ceph-osd/0 list-disks
