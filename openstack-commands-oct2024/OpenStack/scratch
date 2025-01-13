@@ -1,0 +1,12 @@
+juju deploy --channel 8.0/stable mysql-router magnum-mysql-router
+juju integrate magnum-mysql-router:db-router mysql-innodb-cluster:db-router
+juju integrate magnum-mysql-router:shared-db magnum:shared-db
+
+
+
+
+
+alertmanager-karma-dashboard     alertmanager  alertmanager-k8s  125  0/0        karma-dashboard       karma_dashboard          provider
+grafana-dashboards               grafana       grafana-k8s       117  0/0        grafana-dashboard     grafana_dashboard        requirer
+loki-logging                     loki          loki-k8s          160  0/0        logging               loki_push_api            provider
+prometheus-receive-remote-write 

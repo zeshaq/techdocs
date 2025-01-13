@@ -1,0 +1,66 @@
+
+
+
+
+juju deploy prometheus-openstack-exporter --channel latest/stable --series=jammy
+
+juju deploy  prometheus-libvirt-exporter  --channel latest/stable --series=jammy
+
+
+ 
+
+juju deploy prometheus-grok-exporter  --channel latest/stable --series=jammy
+
+
+juju integrate cos-proxy:juju-info prometheus-grok-exporter:juju-info
+
+juju integrate cos-proxy:dashboards  prometheus-grok-exporter:dashboards
+
+juju deploy nrpe --channel latest/stable --series=jammy
+
+
+juju integrate cos-proxy:monitors nrpe:monitors
+
+
+juju integrate  telegraf:juju-info ubuntu:juju-info
+juju integrate  telegraf:juju-info nova-compute:juju-info
+
+
+juju integrate prometheus-metrics-endpoint cos-proxy:downstream-prometheus-scrape
+
+
+juju integrate telegraf:dashboards cos-proxy:dashboards
+
+
+juju integrate grafana-dashboards cos-proxy:downstream-grafana-dashboard
+  
+juju integrate cos-proxy:prometheus-target telegraf:prometheus-client
+juju integrate cos-proxy:prometheus-rules  telegraf:prometheus-rules
+
+
+
+juju integrate ceph-dashboard:grafana-dashboard cos-proxy:dashboards
+
+
+juju integrate  prometheus-openstack-exporter:dashboards cos-proxy:dashboards
+
+
+juju integrate  prometheus-openstack-exporter:prometheus-openstack-exporter-service cos-proxy:prometheus-target
+
+
+juju integrate  prometheus-openstack-exporter:prometheus-openstack-exporter-service cos-proxy:downstream-prometheus-scrape
+
+
+
+
+
+juju integrate   telegraf:juju-info
+  - ubuntu:juju-info
+juju integrate   telegraf:dashboards
+  - cos-proxy:dashboards
+juju integrate  cos-proxy:prometheus-target
+  - telegraf:prometheus-client
+juju integrate  cos-proxy:prometheus-rules  telegraf:prometheus-rules
+juju integrate  grafana-agent:grafana-dashboards-provider grafana-dashboards
+juju integrate grafana-agent:cos-agent cos-proxy:cos-agent
+juju integrate  grafana-agent:send-remote-write prometheus-receive-remote-write

@@ -1,0 +1,155 @@
+// deploy octavia
+
+ 
+
+juju deploy  octavia --channel 2023.2/stable  
+
+juju deploy --channel 8.0/stable mysql-router octavia-mysql-router
+juju integrate octavia-mysql-router:db-router mysql-innodb-cluster:db-router
+juju integrate octavia-mysql-router:shared-db octavia:shared-db
+
+
+
+juju integrate octavia rabbitmq-server
+juju integrate octavia keystone
+juju integrate octavia vault
+juju integrate octavia neutron-api
+juju config neutron-api enable-ml2-port-security=True
+juju integrate ovn-central:ovsdb-cms octavia:ovsdb-cms
+
+
+
+
+
+ 
+
+
+
+//ovn chassis 
+juju deploy  ovn-chassis ovn-chassis-octavia --channel  23.09/stable
+juju integrate octavia:ovsdb-subordinate ovn-chassis-octavia:ovsdb-subordinate
+ 
+
+juju integrate ovn-chassis-octavia vault
+
+juju integrate ovn-chassis-octavia:ovsdb ovn-central:ovsdb
+
+
+
+ 
+// command
+juju run octavia/0 configure-resources  
+
+
+
+// octavia dashboard
+juju deploy octavia-dashboard
+juju integrate octavia-dashboard openstack-dashboard
+
+
+
+
+
+//deploy glance-simplestreams-sync 
+
+juju deploy  glance-simplestreams-sync --channel 2023.2/stable
+juju config --file gss.yaml glance-simplestreams-sync
+juju config glance-simplestreams-sync use_swift=false
+juju config glance-simplestreams-sync frequency=weekly run=true 
+juju integrate glance-simplestreams-sync keystone
+juju integrate glance-simplestreams-sync vault
+
+
+
+
+//deploy octavia-diskimage-retrofit 
+
+juju deploy octavia-diskimage-retrofit  --config amp-image-tag=octavia-amphora
+juju integrate octavia-diskimage-retrofit keystone
+juju integrate octavia-diskimage-retrofit glance-simplestreams-sync
+
+
+
+ 
+juju run octavia-diskimage-retrofit/leader retrofit-image
+
+ 
+
+ 
+
+ 
+
+
+
+cat <<EOF > gss.yaml
+
+sudo nano gss.yaml
+glance-simplestreams-sync:
+  mirror_list: |
+    [{ url: 'http://cloud-images.ubuntu.com/releases/',
+       name_prefix: 'ubuntu:released',
+       path: 'streams/v1/index.sjson',
+       max: 1,
+       item_filters: ['arch~(arm64|amd64)', 'ftype~(uefi1.img|uefi.img|disk1.img)', 'release~(focal|jammy)']
+     },
+     { url: 'http://cloud-images.ubuntu.com/daily/',
+       name_prefix: 'ubuntu:daily',
+       path: 'streams/v1/index.sjson',
+       max: 1,
+       item_filters: ['arch~(arm64|amd64)', 'ftype~(uefi1.img|uefi.img|disk1.img)', 'release~(focal|jammy)']
+     }
+    ]
+
+
+
+EOF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+mkdir -p demoCA/newcerts
+touch demoCA/index.txt
+touch demoCA/index.txt.attr
+
+openssl genpkey -algorithm RSA -aes256 -pass pass:foobar -out issuing_ca_key.pem
+openssl req -x509 -passin pass:foobar -new -nodes -key issuing_ca_key.pem \
+    -config /etc/ssl/openssl.cnf \
+    -subj "/C=US/ST=Somestate/O=Org/CN=www.example.com" \
+    -days 365 \
+    -out issuing_ca.pem
+
+openssl genpkey -algorithm RSA -aes256 -pass pass:foobar -out controller_ca_key.pem
+openssl req -x509 -passin pass:foobar -new -nodes \
+        -key controller_ca_key.pem \
+    -config /etc/ssl/openssl.cnf \
+    -subj "/C=US/ST=Somestate/O=Org/CN=www.example.com" \
+    -days 365 \
+    -out controller_ca.pem
+openssl req \
+    -newkey rsa:2048 -nodes -keyout controller_key.pem \
+    -subj "/C=US/ST=Somestate/O=Org/CN=www.example.com" \
+    -out controller.csr
+openssl ca -passin pass:foobar -config /etc/ssl/openssl.cnf \
+    -cert controller_ca.pem -keyfile controller_ca_key.pem \
+    -create_serial -batch \
+    -in controller.csr -days 365 -out controller_cert.pem
+cat controller_cert.pem controller_key.pem > controller_cert_bundle.pem
+
+
+
+juju config octavia \
+    lb-mgmt-issuing-cacert="$(base64 issuing_ca.pem)" \
+    lb-mgmt-issuing-ca-private-key="$(base64 issuing_ca_key.pem)" \
+    lb-mgmt-issuing-ca-key-passphrase=foobar \
+    lb-mgmt-controller-cacert="$(base64 controller_ca.pem)" \
+    lb-mgmt-controller-cert="$(base64 controller_cert_bundle.pem)"

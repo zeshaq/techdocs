@@ -1,0 +1,36 @@
+<pre>
+juju add-model --config default-series=jammy site-a
+juju deploy -n 3 --channel reef/stable  --config osd-devices="/dev/sdb /dev/sdc /dev/sdd" --constraints tags=osd ceph-osd site-a-ceph-osd
+juju deploy -n 3 --channel reef/stable  --constraints tags=mon   ceph-mon  site-a-ceph-mon
+juju deploy ceph-rbd-mirror --channel reef/stable  --constraints tags=rbd site-a-ceph-rbd-mirror 
+
+juju integrate site-a-ceph-rbd-mirror:ceph-local  site-a-ceph-mon
+juju integrate site-a-ceph-osd site-a-ceph-mon
+
+
+
+juju add-model --config default-series=jammy site-b
+juju deploy -n 3 --channel reef/stable  --config osd-devices="/dev/sdb /dev/sdc /dev/sdd" --constraints tags=osd ceph-osd site-b-ceph-osd
+juju deploy -n 3 --channel reef/stable  --constraints tags=mon   ceph-mon  site-b-ceph-mon
+juju deploy ceph-rbd-mirror --channel reef/stable  --constraints tags=rbd site-b-ceph-rbd-mirror 
+
+juju integrate site-b-ceph-rbd-mirror:ceph-local  site-b-ceph-mon
+juju integrate site-b-ceph-osd site-b-ceph-mon
+
+
+
+juju switch site-a
+juju offer site-a-ceph-rbd-mirror:ceph-remote
+
+
+juju switch site-b
+juju offer site-b-ceph-rbd-mirror:ceph-remote
+
+
+juju integrate  -m site-a site-a-ceph-mon admin/site-b.site-b-ceph-rbd-mirror
+juju integrate  -m site-b site-b-ceph-mon admin/site-a.site-a-ceph-rbd-mirror
+
+
+
+juju run  -m site-a site-a-ceph-mon/leader create-pool name=mypool app-name=rbd
+juju run -m site-a site-a-ceph-rbd-mirror/leader refresh-pools

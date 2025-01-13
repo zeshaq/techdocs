@@ -1,0 +1,26 @@
+export VAULT_ADDR="http://12.12.10.80:8200"
+
+vault operator init -key-shares=5 -key-threshold=3
+
+vault operator unseal
+vault operator unseal
+vault operator unseal
+
+
+export VAULT_TOKEN=s.6IhnOA6bGlSOfeSyhk3exG36
+vault token create -ttl=10m
+
+
+juju run --wait=3m vault/leader authorize-charm token=s.ZvtLw31cm6jUar1IzwqCsGQA
+
+juju run vault/leader generate-root-ca
+
+
+
+vault operator unseal yaPSlO0Vq4EJxSQDLHT248x6Zo0Izc5QrJPalf/XmNHG
+vault operator unseal LhN9MwEyei3SOHRyrpw/rYMz/Nd2wydUrfmH53rgTwBV
+vault operator unseal JP4FB9Poy48GA47g6cw6D9dVfBLtYGdjGfEiokO0HrC3
+Unseal Key 4: GQ4Mc6TqUERnF/egw622l4roYFKgYoFmOxnivMR9YaUM
+Unseal Key 5: 9FPb4JoXMEpo0V1DBhV6e5HHes1FzyhVjnsai3ge58R9
+
+Initial Root Token: s.6IhnOA6bGlSOfeSyhk3exG36

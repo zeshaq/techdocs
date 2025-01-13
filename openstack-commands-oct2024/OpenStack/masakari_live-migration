@@ -1,0 +1,61 @@
+#Live-migration error resolve
+
+juju config nova-compute cpu-mode=custom
+
+juju config nova-compute cpu-model=kvm64
+
+
+#masakri
+
+juju deploy masakari -n 3 --to lxd:22,lxd:23,lxd:24 --channel 2023.2/stable
+juju config masakari vip=12.12.180.180
+juju deploy --channel 8.0/edge mysql-router masakari-mysql-router
+juju integrate masakari-mysql-router:db-router mysql-innodb-cluster:db-router
+juju integrate masakari-mysql-router:shared-db masakari:shared-db
+juju integrate masakari:identity-service keystone:identity-service
+juju integrate masakari:amqp rabbitmq-server:amqp
+juju integrate masakari vault
+
+#masakari_monitor
+
+juju deploy masakari-monitors  --channel 2023.2/stable
+juju integrate masakari-monitors nova-compute
+juju integrate masakari-monitors:identity-credentials keystone:identity-credentials
+
+
+#HA Cluster
+juju deploy hacluster --channel 2.4/stable
+juju config hacluster cluster_count=3
+juju integrate hacluster:ha masakari:ha
+
+
+#Pacemaker remote
+juju deploy pacemaker-remote --channel jammy/edge
+juju integrate pacemaker-remote:juju-info nova-compute:juju-info
+juju integrate vault:certificates masakari:certificates
+juju integrate hacluster:pacemaker-remote pacemaker-remote:pacemaker-remote
+
+#juju-dashboard
+
+juju switch controller
+
+juju deploy juju-dashboard dashboard --constraints tags=juju_dashboard
+juju integrate dashboard controller
+juju expose dashboard
+juju dashboard
+
+
+#masakari configure. segment create, instance HA enable 
+
+openstack segment create segmentOne auto COMPUTE
+
+openstack segment list 
+
+#### 9bde6be8-1a27-43ef-9ba7-99395fe73f44  is segment_uuid
+
+openstack segment host create compute-1.maas COMPUTE SSH 7dfe02c3-08a7-4dfc-9e1b-61d1d90b75b8
+openstack segment host create compute-3.maas COMPUTE SSH 7dfe02c3-08a7-4dfc-9e1b-61d1d90b75b8
+
+openstack segment host list 7dfe02c3-08a7-4dfc-9e1b-61d1d90b75b8
+
+openstack server set --property HA_Enabled=True samplevm-3

@@ -1,0 +1,41 @@
+juju integrate prometheus-ceph-exporter:ceph ceph-mon:client
+juju integrate prometheus-ceph-exporter:ceph-exporter prometheus2:target
+juju integrate telegraf:juju-info prometheus-openstack-exporter:juju-info
+juju integrate telegraf:juju-info prometheus-ceph-exporter:juju-info
+juju integrate telegraf:dashboards grafana:dashboards
+juju integrate telegraf:juju-info grafana:juju-info
+juju integrate prometheus2:grafana-source grafana:grafana-source
+juju integrate telegraf:juju-info ceph-mon:juju-info
+juju integrate telegraf:juju-info ceph-radosgw:juju-info
+juju integrate telegraf:juju-info cinder:juju-info
+juju integrate telegraf:juju-info glance:juju-info
+juju integrate telegraf:juju-info keystone:juju-info
+juju integrate telegraf:juju-info mysql-innodb-cluster:juju-info
+juju integrate telegraf:juju-info neutron-api:juju-info
+juju integrate telegraf:juju-info nova-cloud-controller:juju-info
+juju integrate telegraf:juju-info nova-compute:juju-info
+juju integrate telegraf:juju-info openstack-dashboard:juju-info
+juju integrate telegraf:juju-info ovn-central:juju-info
+juju integrate telegraf:juju-info placement:juju-info
+juju integrate telegraf:juju-info rabbitmq-server:juju-info
+juju integrate telegraf:amqp rabbitmq-server:amqp
+juju integrate telegraf:prometheus-client prometheus:target
+juju integrate telegraf:juju-info vault:juju-info
+juju integrate prometheus-openstack-exporter:identity-credentials keystone:identity-credentials
+juju integrate prometheus-openstack-exporter:prometheus-openstack-exporter-service prometheus2:target
+
+
+
+
+
+
+
+
+
+
+
+juju integrate prometheus2:alertmanager-service prometheus-openstack-exporter:prometheus-openstack-exporter-service
+juju integrate prometheus2:blackbox-exporter prometheus-openstack-exporter:prometheus-openstack-exporter-service
+juju integrate prometheus2:prometheus-rules prometheus-openstack-exporter:prometheus-rules
+juju integrate prometheus2:snmp-exporter prometheus-openstack-exporter:prometheus-openstack-exporter-service
+juju integrate prometheus2:target prometheus-openstack-exporter:prometheus-openstack-exporter-service

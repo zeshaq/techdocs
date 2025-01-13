@@ -1,0 +1,158 @@
+juju switch microk8s-cluster-localhost:cos
+juju switch maas-controller:os
+
+
+
+
+
+##microk8s installation
+
+sudo snap install microk8s --classic --channel=1.28
+sudo usermod -a -G microk8s $USER
+sudo chown -f -R $USER ~/.kube
+su - $USER
+microk8s enable dns
+microk8s enable hostpath-storage
+sudo apt install jq
+sudo snap install yq
+
+mkdir .kube
+cd .kube
+microk8s config > config
+
+juju add-k8s micro maas-controller
+juju add-model cos micro
+juju switch cos
+
+IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
+microk8s enable metallb:12.12.122.1-12.12.122.200
+
+
+
+curl -L https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays/offers-overlay.yaml -O
+curl -L https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays/storage-small-overlay.yaml -O
+
+
+juju deploy cos-lite \
+  --trust \
+  --overlay ./offers-overlay.yaml \
+  --overlay ./storage-small-overlay.yaml
+
+ 
+juju run traefik/0 show-proxied-endpoints --format=yaml \
+  | yq '."traefik/0".results."proxied-endpoints"' \
+  | jq
+
+
+juju show-unit catalogue/0 | grep url
+
+
+      url: http://12.12.122.1/cos-grafana
+      url: http://12.12.122.1/cos-prometheus-0
+      url: http://12.12.122.1/cos-alertmanager
+      ingress: '{"url": "http://12.12.122.1/cos-catalogue"}'
+
+
+
+juju run grafana/leader get-admin-password --model cos 
+NZX2jJtxVFa7
+
+
+
+juju offer cos.prometheus:metrics-endpoint
+juju offer cos.grafana:grafana-dashboard
+
+
+#### configure 
+
+
+
+
+
+juju integrate cos-proxy:downstream-prometheus-scrape  prometheus:metrics-endpoint 
+juju integrate  nrpe:monitors  cos-proxy:monitors     
+
+
+juju integrate memcached:juju-info     nrpe:general-info           
+juju integrate memcached:local-monitors   nrpe:local-monitors         
+juju integrate memcached:monitors    cos-proxy:monitors               
+juju integrate memcached:nrpe-external-master          nrpe:nrpe-external-master    
+      
+juju integrate nrpe:monitors     nagios:monitors                   
+juju integrate nova-compute:juju-info   nrpe:general-info                         
+juju integrate nova-compute:juju-info   telegraf:juju-info            
+juju integrate cos-proxy:downstream-grafana-dashboard grafana-dashboards:grafana-dashboard 
+juju integrate prometheus-openstack-exporter:dashboards cos-proxy:dashboards
+juju integrate grafana-agent prometheus-receive-remote-write
+juju integrate grafana-agent loki-logging
+juju integrate grafana-agent grafana-dashboards
+
+juju integrate grafana-agent grafana
+juju integrate grafana-agent prometheus-openstack-exporter
+
+
+juju integrate telegraf:dashboards cos-proxy:dashboards
+juju integrate grafana cos-proxy:downstream-grafana-dashboard
+
+
+juju integrate prometheus-openstack-exporter cos-proxy:prometheus-rules
+
+
+
+
+
+
+
+
+///
+
+juju offer -c maas-controller cos.prometheus:receive-remote-write prometheus-receive-remote-write
+juju offer -c maas-controller cos.grafana:grafana-dashboard grafana-dashboards
+juju offer -c maas-controller cos.loki:logging loki-logging
+
+
+
+juju consume -m  maas-controller:cos.prometheus-receive-remote-write
+juju consume -m  maas-controller:cos.grafana-dashboards
+juju consume -m  maas-controller:cos.loki-logging
+
+
+juju integrate  grafana-agent:send-remote-write prometheus-receive-remote-write
+juju integrate grafana-agent:grafana-dashboards-provider grafana-dashboards
+juju integrate  grafana-agent:logging-consumer loki-logging
+
+
+
+juju status -m cos-controller:cos grafana-agent-k8s --relations
+
+
+juju integrate nova-compute:metrics-endpoint grafana-agent-k8s:metrics-endpoint
+juju integrate nova-compute:logging grafana-agent:logging-provider
+
+
+
+juju deploy openstack-exporter
+juju integrate openstack-exporter:credentials keystone:identity-admin
+juju integrate openstack-exporter:cos-agent grafana-agent:cos-agent
+
+
+
+juju show-unit -m maas-controller:cos catalogue/0 --format json | jq '.[]."relation-info".[]."application-data".url | select (. != null)'
+
+juju exec --unit grafana-agent/0 -m nova-compute 'curl -s <URL>'
+
+
+
+juju integrate nova-compute:logging grafana-agent:logging-provider
+
+
+
+juju integrate grafana-agent:cos-agent nova-compute:cos-agent
+
+
+
+
+juju integrate cos-proxy:dashboards telegraf:dashboards
+juju integrate cos-proxy:prometheus-rules telegraf:prometheus-rules 
+juju integrate cos-proxy:prometheus-target telegraf:prometheus-client 
+juju integrate  telegraf:juju-info cos-proxy:juju-info

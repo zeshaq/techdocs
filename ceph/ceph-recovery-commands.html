@@ -75,12 +75,12 @@ ps aux | grep ceph-mon.service
 
 ceph osd pool create rbd_pool 128 128
 
-rbd create myrbd1 --size 140 --pool rbd_pool
+rbd create rbd33 --size 140 --pool mypool
 rbd create myrbd2 --size 140 --pool rbd_pool
 rbd create myrbd12 --size 140 --pool rbd_pool
 rbd create myrbd13 --size 140 --pool rbd_pool
-rbd create myrbd14 --size 140 --pool rbd_pool
-rbd ls -p rbd_pool
+rbd create rb1 --size 14 --pool rbd_pool
+rbd ls -p mypool
 
 
 

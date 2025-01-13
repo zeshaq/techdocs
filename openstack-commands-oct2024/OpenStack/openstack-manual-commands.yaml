@@ -1,0 +1,301 @@
+sudo snap install maas-test-db
+sudo snap install maas --channel=3.6/stable
+sudo maas init region+rack --maas-url http://12.12.60.1:5240/MAAS --database-uri maas-test-db:///
+sudo maas createadmin --username ze --password ze --email ze@ze.com --ssh-import gh:zeshaq
+sudo maas createadmin --username ze --password ze --email ze@ze.com --ssh-import cat /home/ze/.ssh/id_rsa.pub
+
+
+cat <<EOF > jujusetup.yaml
+clouds:
+  maas-one:
+    type: maas
+    auth-types: [oauth1]
+    endpoint: http://12.12.60.1:5240/MAAS
+
+credentials:
+  maas-one:
+    anyuser:
+      auth-type: oauth1
+      maas-oauth: r2zaxTkqAHtjPVWHht:J9EAbStG8th3xSsBRS:yTUH7GNHFDkhTDEH5w9yaDWqTe7wCCrm
+EOF
+
+
+juju add-cloud --client -f jujusetup.yaml maas-one
+juju add-credential --client -f jujusetup.yaml maas-one
+
+
+juju bootstrap --bootstrap-series=jammy --constraints tags=juju maas-one maas-controller
+juju add-model --config default-series=jammy openstack
+juju switch maas-controller:openstack
+
+
+cat <<EOF > osconfig.yaml
+
+ceph-osd:
+  osd-devices:  /dev/sdb /dev/sdc /dev/sdd
+nova-compute:
+  config-flags: default_ephemeral_format=ext4
+  enable-live-migration: true
+  enable-resize: true
+  migration-auth-type: ssh
+  virt-type: qemu
+ovn-chassis:
+  bridge-interface-mappings: br-ex:enp5s0
+  ovn-bridge-mappings: physnet1:br-ex
+neutron-api:
+  neutron-security-groups: true
+  flat-network-providers: physnet1
+nova-cloud-controller:
+  network-manager: Neutron
+ceph-mon:
+  expected-osd-count: 3
+  monitor-count: 3
+cinder:
+  block-device: None
+  glance-api-version: 2
+
+EOF
+
+
+
+
+
+juju deploy -n 3 --channel reef/stable --config osconfig.yaml --constraints tags=ceph ceph-osd
+juju deploy -n 3 --channel 2023.2/stable --config osconfig.yaml --constraints tags=compute nova-compute
+
+
+juju deploy -n 3  --channel 8.0/stable mysql-innodb-cluster  --constraints tags=innodb
+
+
+juju deploy  --channel 1.8/stable vault  
+juju deploy --channel 8.0/stable mysql-router vault-mysql-router
+juju integrate vault-mysql-router:db-router mysql-innodb-cluster:db-router
+juju integrate vault-mysql-router:shared-db vault:shared-db
+juju integrate mysql-innodb-cluster:certificates vault:certificates
+
+
+
+
+
+juju deploy -n 3  --channel 23.09/stable ovn-central   
+juju deploy  --channel 2023.2/stable --config osconfig.yaml neutron-api 
+
+
+ 
+
+juju deploy --channel 2023.2/stable neutron-api-plugin-ovn
+juju deploy --channel 23.09/stable --config osconfig.yaml ovn-chassis
+
+juju integrate neutron-api-plugin-ovn:neutron-plugin neutron-api:neutron-plugin-api-subordinate
+juju integrate neutron-api-plugin-ovn:ovsdb-cms ovn-central:ovsdb-cms
+juju integrate ovn-chassis:ovsdb ovn-central:ovsdb
+juju integrate ovn-chassis:nova-compute nova-compute:neutron-plugin
+juju integrate neutron-api:certificates vault:certificates
+juju integrate neutron-api-plugin-ovn:certificates vault:certificates
+juju integrate ovn-central:certificates vault:certificates
+juju integrate ovn-chassis:certificates vault:certificates
+juju deploy --channel 8.0/stable mysql-router neutron-api-mysql-router
+juju integrate neutron-api-mysql-router:db-router mysql-innodb-cluster:db-router
+juju integrate neutron-api-mysql-router:shared-db neutron-api:shared-db
+
+
+ 
+juju deploy  --channel 2023.2/stable keystone  
+
+juju deploy --channel 8.0/stable mysql-router keystone-mysql-router
+juju integrate keystone-mysql-router:db-router mysql-innodb-cluster:db-router
+juju integrate keystone-mysql-router:shared-db keystone:shared-db
+juju integrate keystone:identity-service neutron-api:identity-service
+juju integrate keystone:certificates vault:certificates
+
+
+
+juju deploy  --channel 3.9/stable rabbitmq-server  
+juju integrate rabbitmq-server:amqp neutron-api:amqp
+juju integrate rabbitmq-server:amqp nova-compute:amqp
+
+ 
+
+juju deploy  --channel 2023.2/stable --config osconfig.yaml nova-cloud-controller  
+juju deploy --channel 8.0/stable mysql-router ncc-mysql-router
+juju integrate ncc-mysql-router:db-router mysql-innodb-cluster:db-router
+juju integrate ncc-mysql-router:shared-db nova-cloud-controller:shared-db
+juju integrate nova-cloud-controller:identity-service keystone:identity-service
+juju integrate nova-cloud-controller:amqp rabbitmq-server:amqp
+juju integrate nova-cloud-controller:neutron-api neutron-api:neutron-api
+juju integrate nova-cloud-controller:cloud-compute nova-compute:cloud-compute
+juju integrate nova-cloud-controller:certificates vault:certificates
+
+
+ 
+juju deploy   --channel 2023.2/stable placement  
+juju deploy --channel 8.0/stable mysql-router placement-mysql-router
+juju integrate placement-mysql-router:db-router mysql-innodb-cluster:db-router
+juju integrate placement-mysql-router:shared-db placement:shared-db
+juju integrate placement:identity-service keystone:identity-service
+juju integrate placement:placement nova-cloud-controller:placement
+juju integrate placement:certificates vault:certificates
+
+
+
+ 
+
+juju deploy   --channel 2023.2/stable openstack-dashboard   
+juju deploy --channel 8.0/stable mysql-router dashboard-mysql-router
+juju integrate dashboard-mysql-router:db-router mysql-innodb-cluster:db-router
+juju integrate dashboard-mysql-router:shared-db openstack-dashboard:shared-db
+juju integrate openstack-dashboard:identity-service keystone:identity-service
+juju integrate openstack-dashboard:certificates vault:certificates
+
+
+
+juju deploy  --channel 2023.2/stable glance 
+juju deploy --channel 8.0/stable mysql-router glance-mysql-router
+juju integrate glance-mysql-router:db-router mysql-innodb-cluster:db-router
+juju integrate glance-mysql-router:shared-db glance:shared-db
+juju integrate glance:image-service nova-cloud-controller:image-service
+juju integrate glance:image-service nova-compute:image-service
+juju integrate glance:identity-service keystone:identity-service
+juju integrate glance:certificates vault:certificates
+
+
+
+
+juju deploy -n 3   --channel reef/stable --config osconfig.yaml ceph-mon  
+juju integrate ceph-mon:osd ceph-osd:mon
+juju integrate ceph-mon:client nova-compute:ceph
+juju integrate ceph-mon:client glance:ceph
+
+
+
+juju deploy   --channel 2023.2/stable --config osconfig.yaml cinder  
+juju deploy --channel 8.0/stable mysql-router cinder-mysql-router
+juju integrate cinder-mysql-router:db-router mysql-innodb-cluster:db-router
+juju integrate cinder-mysql-router:shared-db cinder:shared-db
+
+juju integrate cinder:cinder-volume-service nova-cloud-controller:cinder-volume-service
+juju integrate cinder:identity-service keystone:identity-service
+juju integrate cinder:amqp rabbitmq-server:amqp
+juju integrate cinder:image-service glance:image-service
+juju integrate cinder:certificates vault:certificates
+
+
+
+juju deploy --channel 2023.2/stable cinder-ceph  
+juju integrate cinder-ceph:storage-backend cinder:storage-backend
+juju integrate cinder-ceph:ceph ceph-mon:client
+juju integrate cinder-ceph:ceph-access nova-compute:ceph-access
+
+
+
+
+juju deploy  --channel reef/stable ceph-radosgw 
+juju integrate ceph-radosgw:mon ceph-mon:radosgw
+juju integrate ceph-radosgw:identity-service keystone:identity-service
+juju integrate ceph-radosgw vault
+
+
+
+juju deploy barbican --channel 2023.2/stable 
+juju deploy barbican-vault --channel 2023.2/stable 
+
+juju deploy --channel 8.0/stable mysql-router barbican-mysql-router
+juju integrate barbican-mysql-router:db-router mysql-innodb-cluster:db-router
+juju integrate barbican-mysql-router:shared-db barbican:shared-db
+
+
+juju integrate barbican rabbitmq-server
+juju integrate barbican keystone
+
+juju integrate barbican:secrets barbican-vault
+juju integrate barbican-vault vault:secrets
+
+
+
+source ~/openrc
+
+openstack network create --external --share \
+   --provider-network-type flat --provider-physical-network physnet1 \
+   ext_net
+
+
+openstack subnet create --network ext_net --no-dhcp \
+   --gateway 12.12.0.1 --subnet-range 12.12.0.0/16 \
+   --allocation-pool start=12.12.190.1,end=12.12.191.254 \
+   ext_subnet
+
+
+ 
+openstack network create --internal int_net
+
+openstack subnet create --network int_net --dns-nameserver 8.8.8.8 \
+   --subnet-range 192.168.0/24 \
+   --allocation-pool start=192.168.0.10,end=192.168.0.99 \
+   int_subnet
+
+
+
+openstack router create router1
+
+openstack router add subnet router1  int_subnet
+openstack router set router1 --external-gateway ext_net
+
+
+mkdir ~/cloud-keys
+
+ssh-keygen -q -N '' -f ~/tutorial/id_mykey
+
+openstack keypair create --public-key ~/tutorial/id_mykey.pub mykey
+
+
+openstack security group create --description 'Allow SSH' Allow_SSH
+openstack security group rule create --proto tcp --dst-port 22 Allow_SSH
+openstack security group rule create --proto icmp  Allow_SSH
+
+for i in $(openstack security group list | awk '/default/{ print $2 }'); do
+   openstack security group rule create $i --protocol tcp --remote-ip 0.0.0.0/0 --dst-port 22;
+done
+
+mkdir ~/cloud-images
+
+wget http://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img \
+   -O ~/cloud-images/jammy-amd64.img
+
+openstack image create --public --container-format bare \
+   --disk-format qcow2 --file ~/cloud-images/jammy-amd64.img \
+   jammy-amd64
+
+openstack flavor create --ram 2048 --disk 20 --ephemeral 20 m1.small
+
+
+openstack server create --image jammy-amd64 --flavor m1.small \
+   --key-name mykey --network int_net --security-group Allow_SSH \
+   jammy-1
+
+
+
+FLOATING_IP=$(openstack floating ip create -f value -c floating_ip_address ext_net)
+openstack server add floating ip jammy-1 $FLOATING_IP
+
+ssh -i ~/tutorial/id_mykey.pub ubuntu@$FLOATING_IP
+
+
+
+
+
+//load balancer
+
+lb_vip_port_id=$(openstack loadbalancer create -f value -c vip_port_id --name lb1 --vip-subnet-id int_subnet)
+
+# Re-run the following until lb1 shows ACTIVE and ONLINE status':
+openstack loadbalancer show lb1
+
+openstack loadbalancer listener create --name listener1 --protocol HTTP --protocol-port 80 lb1
+openstack loadbalancer pool create --name pool1 --lb-algorithm ROUND_ROBIN --listener listener1 --protocol HTTP
+openstack loadbalancer healthmonitor create --delay 5 --max-retries 4 --timeout 10 --type HTTP --url-path /healthcheck pool1
+openstack loadbalancer member create --subnet-id int_subnet --address 192.168.21.100 --protocol-port 80 pool1
+openstack loadbalancer member create --subnet-id int_subnet --address 192.168.21.101 --protocol-port 80 pool1
+
+floating_ip=$(openstack floating ip create -f value -c floating_ip_address ext_net)
+openstack floating ip set --port $lb_vip_port_id $floating_ip
+

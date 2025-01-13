@@ -1,0 +1,44 @@
+
+
+
+juju offer cos.prometheus:metrics-endpoint metrics-endpoint
+
+
+juju offer -c maas-controller cos.loki:logging loki-logging
+
+
+
+juju deploy cos-proxy --channel=latest/stable --series=jammy
+juju deploy telegraf --channel latest/stable --series=jammy
+juju deploy nrpe --channel latest/stable --series=jammy
+
+ 
+juju deploy  grafana-agent  --channel latest/stable --series=jammy
+juju deploy ubuntu --channel latest/stable --series=jammy
+juju deploy memcached --channel latest/stable --series=jammy
+juju deploy nagios --channel latest/stable --series=jammy
+
+
+
+
+
+ 
+ 
+juju relate  telegraf:juju-info ubuntu:juju-info
+
+ 
+juju relate  telegraf:prometheus-client cos-proxy:prometheus-target
+juju relate  telegraf:prometheus-rules cos-proxy:prometheus-rules
+
+
+juju consume  cos.prometheus-k8s
+juju relate -m reactive prometheus-k8s cos-proxy:downstream-prometheus-scrape
+
+
+juju offer microk8s-cluster:cos.grafana:grafana-dashboard
+juju relate -m reactive telegraf:dashboards cos-proxy:dashboards
+
+juju consume -m reactive microk8s-cluster:cos.prometheus-k8s
+juju consume -m reactive microk8s-cluster:cos.grafana
+juju relate -m reactive prometheus-k8s cos-proxy:downstream-prometheus-scrape
+juju relate -m reactive grafana cos-proxy:downstream-grafana-dashboard

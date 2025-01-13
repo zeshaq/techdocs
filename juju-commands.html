@@ -1,0 +1,16 @@
+
+
+// add lxd vm to a lxd host with multiple disks 
+
+juju add-machine --constraints "cores=8 mem=24G root-disk=80G" 
+juju add-machine --constraints "cores=8 mem=24G root-disk=80G" --disks="3,100G"
+
+
+
+
+
+
+juju deploy -n 3 --channel reef/stable  --config osd-devices="/dev/sdb /dev/sdc /dev/sdd"   ceph-osd
+
+
+juju deploy -n 3 --channel reef/stable  --config osd-devices="/dev/sdb /dev/sdc /dev/sdd" --constraints "cores=8 mem=24G root-disk=80G" --disks="3,100G" ceph-osd

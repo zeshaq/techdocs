@@ -1,0 +1,86 @@
+
+source ~/openrc
+
+openstack network create --external --share \
+   --provider-network-type flat --provider-physical-network physnet1 \
+   ext_net
+
+
+openstack subnet create --network ext_net --no-dhcp \
+   --gateway 12.12.0.1 --subnet-range 12.12.0.0/16 \
+   --allocation-pool start=12.12.190.1,end=12.12.191.254 \
+   ext_subnet
+
+
+ 
+openstack network create --internal int_net
+
+openstack subnet create --network int_net --dns-nameserver 8.8.8.8 \
+   --subnet-range 192.168.0/24 \
+   --allocation-pool start=192.168.0.10,end=192.168.0.99 \
+   int_subnet
+
+
+
+openstack router create router1
+
+openstack router add subnet router1  int_subnet
+openstack router set router1 --external-gateway ext_net
+
+
+mkdir ~/cloud-keys
+
+ssh-keygen -q -N '' -f ~/cloud-keys/adminkey.pub
+
+openstack keypair create --public-key ~/cloud-keys/adminkey.pub adminkey
+ 
+openstack keypair create --public-key  /home/ze/.ssh/id_rsa.pub admin_rsa
+
+
+openstack security group create --description 'Allow SSH' Allow_SSH
+openstack security group rule create --proto tcp --dst-port 22 Allow_SSH
+
+
+
+for i in $(openstack security group list | awk '/default/{ print $2 }'); do
+   openstack security group rule create $i --protocol tcp --remote-ip 0.0.0.0/0 --dst-port 22;
+done
+
+
+mkdir ~/cloud-images
+
+wget http://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img \
+   -O ~/cloud-images/jammy-amd64.img
+
+openstack image create --public --container-format bare \
+   --disk-format qcow2 --file ~/cloud-images/jammy-amd64.img \
+   jammy-amd64
+
+openstack flavor create --ram 2048 --disk 20 --ephemeral 20 m1.small
+
+
+openstack server create --image jammy-amd64 --flavor m1.small \
+   --key-name admin_rsa --network int_net --security-group Allow_SSH \
+   jammy-1
+
+FLOATING_IP=$(openstack floating ip create -f value -c floating_ip_address ext_net)
+openstack server add floating ip jammy-1 $FLOATING_IP
+
+ssh -i /home/ze/.ssh/id_rsa.pub  ubuntu@$FLOATING_IP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

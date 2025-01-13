@@ -1,0 +1,9 @@
+https://github.com/openstack/charm-keystone-saml-mellon/blob/master/src/README.md
+https://cloud.garr.it/support/kb/cloud/federated_auth_juju/
+
+
+
+juju  relate  keystone-saml-mellon keystone
+juju  relate  keystone-saml-mellon openstack-dashboard
+
+juju relate  openstack-dashboard:websso-trusted-dashboard keystone:websso-trusted-dashboard

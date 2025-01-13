@@ -1,0 +1,26 @@
+
+
+juju deploy --channel 8.0/stable mysql-router gnocchi-mysql-router
+juju integrate gnocchi-mysql-router:db-router mysql-innodb-cluster:db-router
+juju integrate gnocchi-mysql-router:shared-db gnocchi:shared-db
+ 
+ 
+
+
+ juju integrate ceilometer:amqp rabbitmq
+juju integrate ceilometer keystone:identity-service
+juju integrate ceilometer keystone:identity-notifications
+
+
+
+juju integrate ceilometer keystone:identity-credentials
+
+
+
+
+
+juju deploy --channel 8.0/stable mysql-router ceilometer-mysql-router
+juju integrate ceilometer-mysql-router:db-router mysql-innodb-cluster:db-router
+juju integrate ceilometer-mysql-router:shared-db ceilometer:shared-db
+ 
+ 

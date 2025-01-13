@@ -1,0 +1,71 @@
+
+
+# when deploying through maas, br-ex creates problem. No need to use bridge. 
+
+
+
+juju deploy -n 2 --channel 1.31/stable --constraints tags=ck kubernetes-control-plane
+juju deploy -n 3 --channel 1.31/stable --constraints tags=ck kubernetes-worker
+juju deploy -n 1 --channel 1.31/stable --constraints tags=ck  kubeapi-load-balancer
+juju deploy -n 3 --channel 1.31/stable --constraints tags=ck etcd
+juju deploy -n 1 --channel 1.31/stable --constraints tags=ck easyrsa
+
+
+
+
+juju deploy  --channel 1.31/stable  calico
+juju deploy  --channel 1.31/stable  containerd
+
+
+
+juju expose   kubernetes-worker
+juju expose    kubeapi-load-balancer
+juju config calico ignore-loose-rpf=true
+
+
+juju config calico vxlan=Always
+
+ 
+juju relate kubernetes-control-plane:loadbalancer-external kubeapi-load-balancer:lb-consumers
+juju relate  kubernetes-control-plane:loadbalancer-internal kubeapi-load-balancer:lb-consumers
+juju relate  kubernetes-control-plane:kube-control kubernetes-worker:kube-control
+juju relate  kubernetes-control-plane:certificates easyrsa:client
+juju relate  etcd:certificates easyrsa:client
+juju relate  kubernetes-control-plane:etcd etcd:db
+juju relate  kubernetes-worker:certificates easyrsa:client
+juju relate  kubeapi-load-balancer:certificates easyrsa:client
+juju relate  calico:etcd etcd:db
+juju relate  calico:cni kubernetes-control-plane:cni
+juju relate  calico:cni kubernetes-worker:cni
+juju relate  containerd:containerd kubernetes-worker:container-runtime
+juju relate  containerd:containerd kubernetes-control-plane:container-runtime
+
+
+
+
+juju deploy -n 3 --channel reef/stable --config osconfig.yaml --constraints tags=ckosdlxd ceph-osd
+juju deploy -n 3   --channel reef/stable --config osconfig.yaml ceph-mon  --constraints tags=ckmonlxd
+juju integrate ceph-mon:osd ceph-osd:mon
+
+
+juju config kubernetes-control-plane allow-privileged=true
+juju deploy ceph-csi
+juju integrate ceph-csi:kubernetes kubernetes-control-plane:juju-info
+juju integrate ceph-csi:ceph-client ceph-mon:client
+
+
+
+metallb 
+
+juju config kubernetes-control-plane proxy-extra-config='{mode: ipvs, ipvs: {strictARP: true}}'
+juju config kubernetes-worker proxy-extra-config='{mode: ipvs, ipvs: {strictARP: true}}'
+
+
+
+
+juju ssh kubernetes-control-plane/leader -- cat config > ~/.kube/config
+
+juju add-k8s cdk-cloud --controller $(juju switch | cut -d: -f1)
+
+juju add-model metallb cdk-cloud 
+juju deploy metallb --config iprange='12.12.171.1-12.12.171.254' --trust
