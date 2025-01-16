@@ -4,27 +4,26 @@ sudo snap install yq
 
 
 sudo snap install vault
-export VAULT_ADDR="http://12.12.191.43:8200"
-vault operator init -key-shares=5 -key-threshold=3
+12.12.194.50
+
+export VAULT_ADDR="http://12.12.194.50:8200"
+vault operator init -key-shares=1 -key-threshold=1
 
 
 
-vault operator unseal 
+vault operator unseal QI3mhBaxL31sz4FaBIaiiHUnM3g4xhpFs4iIaVQWvuM=
 
-export VAULT_TOKEN=s.ZCXqaWfbowOd9qfyguzKjxgM
+export VAULT_TOKEN=s.wmmAoCS4jKQPzob9zWJjMKdX
+
 vault token create -ttl=10m
 
-juju run  vault/0 authorize-charm token=s.77g1VjuGCmX4LLayldwfFIL9
-
+juju run  vault/0 authorize-charm token=s.pMqvnvRZJFbL7RZ1j5ZMdVXa
 
 
 juju run  vault/0 generate-root-ca
  
 
-vault operator unseal  Tztnyov0JPg+43fXGYaMrC6sbCkpR/Y5pHJY0sM1Fv/3
-vault operator unseal  PJq2LlYy+R3wBXBeQ6+sYx6kOdXNkf14lgKMd3Gsjin7
-vault operator unseal  4KnTxrY12oAEwlajGLR1vR4tihyDX6r3FLKuCBOo6jWL
-Unseal Key 4: SgQYsUQXyzh6KnNMXyLQlKrmcpAW4oMYazhvWTRRWkMh
-Unseal Key 5: VZ6n2Fu1CUr8Qc6IxVHHIrz35qugRvTP194UbjuanWq8
 
-Initial Root Token: s.ZCXqaWfbowOd9qfyguzKjxgM
+Unseal Key 1: QI3mhBaxL31sz4FaBIaiiHUnM3g4xhpFs4iIaVQWvuM=
+
+Initial Root Token: s.wmmAoCS4jKQPzob9zWJjMKdX

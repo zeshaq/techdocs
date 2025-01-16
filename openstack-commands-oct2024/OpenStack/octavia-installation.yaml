@@ -36,10 +36,6 @@ juju integrate ovn-chassis-octavia:ovsdb ovn-central:ovsdb
 
 
 
- 
-// command
-juju run octavia/0 configure-resources  
-
 
 
 // octavia dashboard
@@ -47,6 +43,10 @@ juju deploy octavia-dashboard
 juju integrate octavia-dashboard openstack-dashboard
 
 
+
+ 
+// command
+juju run octavia/0 configure-resources  
 
 
 

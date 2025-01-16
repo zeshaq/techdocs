@@ -1,0 +1,20 @@
+alias kubectl='microk8s kubectl'
+
+
+
+helm install rancher rancher-latest/rancher \
+  --namespace cattle-system \
+  --set hostname=rancher.loc \
+  --set replicas=1 \
+  --set bootstrapPassword=Rancher@123# \
+  --set ingress.tls.source=none
+
+
+  nSkAroVw4ovHy4qk
+
+
+  kubectl -n cattle-system exec -it rancher-74c6f6bc5b-ftlgn -- reset-password
+
+
+
+  microk8s enable metallb:15.15.122.1-15.15.122.200

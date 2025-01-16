@@ -10,7 +10,7 @@ this is the setup with grafana agent.  It gives dashboard for openstack and ceph
 juju deploy cos-proxy --channel=latest/stable --series=jammy
 juju deploy telegraf --channel latest/stable --series=jammy
 juju deploy  grafana-agent  --channel latest/stable --series=jammy
-
+juju deploy nrpe --channel latest/stable --series=jammy
 
 
 
@@ -21,7 +21,6 @@ juju config openstack-exporter cache=true
 juju config openstack-exporter cache_ttl=6s
 juju exec -u vault/leader 'leader-get root-ca' > ca.crt
 juju config openstack-exporter ssl_ca="$(cat ca.crt)"
-
 
 
 
@@ -45,6 +44,7 @@ juju relate grafana-agent loki-logging
 juju relate grafana-agent grafana-dashboards
 
 
+juju integrate  telegraf:juju-info nova-compute:juju-info
 
  
  

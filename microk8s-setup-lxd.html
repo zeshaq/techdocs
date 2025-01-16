@@ -1,0 +1,16 @@
+juju add-model microk8s
+juju deploy microk8s --config hostpath_storage=true --constraints 'tags=microk8s' --channel 1.28/stable --series jammy
+juju expose microk8s
+kubeconfig="$(juju exec --unit microk8s/leader -- microk8s config)"
+
+controller="$(juju controller-config controller-name)"
+echo "$kubeconfig" | juju add-k8s microk8s-cloud --controller "$controller"
+
+
+juju add-model cos microk8s-cloud
+juju switch cos
+
+
+mkdir .kube
+cd .kube
+echo $kubeconfig > config

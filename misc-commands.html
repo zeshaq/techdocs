@@ -1,0 +1,10 @@
+juju add-model --config default-series=jammy openstack1 maas-one 
+
+juju destroy-model openstack1 --force --no-wait
+
+juju debug-log --include=octavia
+
+
+
+source ~/openrc
+env | grep OS_

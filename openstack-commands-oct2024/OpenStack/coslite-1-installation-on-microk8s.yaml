@@ -44,6 +44,26 @@ juju run traefik/0 show-proxied-endpoints --format=yaml \
   | jq
 
 
+  {
+  "traefik": {
+    "url": "http://12.12.122.1"
+  },
+  "prometheus/0": {
+    "url": "http://12.12.122.1/cos-prometheus-0"
+  },
+  "loki/0": {
+    "url": "http://12.12.122.1/cos-loki-0"
+  },
+  "alertmanager": {
+    "url": "http://12.12.122.1/cos-alertmanager"
+  },
+  "catalogue": {
+    "url": "http://12.12.122.1/cos-catalogue"
+  }
+}
+
+
+
 juju show-unit catalogue/0 | grep url
 
 
@@ -51,7 +71,6 @@ juju show-unit catalogue/0 | grep url
       url: http://12.12.122.1/cos-prometheus-0
       url: http://12.12.122.1/cos-alertmanager
       ingress: '{"url": "http://12.12.122.1/cos-catalogue"}'
-
 
 
 juju run grafana/leader get-admin-password --model cos 
