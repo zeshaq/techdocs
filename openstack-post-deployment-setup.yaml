@@ -45,8 +45,11 @@ openstack keypair create --public-key ~/cloud-keys/adminkey.pub adminkey
 
 openstack security group create --description 'Allow SSH' Allow_SSH
 openstack security group rule create --proto tcp --dst-port 22 Allow_SSH
+openstack security group rule create --proto icmp  Allow_SSH
 
-
+for i in $(openstack security group list | awk '/default/{ print $2 }'); do
+   openstack security group rule create $i --protocol tcp --remote-ip 0.0.0.0/0 --dst-port 22;
+done
 
 mkdir ~/cloud-images
 
@@ -62,7 +65,11 @@ openstack flavor create --ram 2048 --disk 20 --ephemeral 20 m1.small
 
 openstack server create --image jammy-amd64 --flavor m1.small \
    --key-name adminkey --network int_net --security-group Allow_SSH \
-   jammy-1
+   jammy-2
+   
+FLOATING_IP=$(openstack floating ip create -f value -c floating_ip_address ext_net)
+openstack server add floating ip jammy-2 $FLOATING_IP
+ 
 
 FLOATING_IP=$(openstack floating ip create -f value -c floating_ip_address ext_net)
 openstack server add floating ip jammy-1 $FLOATING_IP
@@ -71,3 +78,12 @@ ssh -i ~/cloud-keys/adminkey.pub   ubuntu@$FLOATING_IP
 
 
 chmod 600 /home/ze/cloud-keys/adminkey
+
+
+openstack security group create --description 'Allow SSH' Allow_SSH
+openstack security group rule create --proto tcp --dst-port 22 Allow_SSH
+openstack security group rule create --proto icmp  Allow_SSH
+
+for i in $(openstack security group list | awk '/default/{ print $2 }'); do
+   openstack security group rule create $i --protocol tcp --remote-ip 0.0.0.0/0 --dst-port 22;
+done
