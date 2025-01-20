@@ -1,0 +1,30 @@
+
+
+sudo mysql
+
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Hkj38djf&&&';
+
+
+
+GRANT ALL PRIVILEGES ON skyline.* TO 'skyline'@'localhost' IDENTIFIED BY 'SKYLINE_DBPASS';
+
+
+openstack user create --domain default --password-prompt skyline
+
+ze
+
+
+openstack user create --project service --password ze skyline
+
+
+
+openstack user create --domain default --password-prompt skyline
+
+
+openstack role add --project services --user skyline admin
+
+
+openstack user create --project service --password ze skyline
+
+
+openstack user create --project new-project --password PASSWORD new-user

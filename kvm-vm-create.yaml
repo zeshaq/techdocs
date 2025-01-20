@@ -1,0 +1,174 @@
+qemu-img create -f qcow2 /var/lib/libvirt/images/ubuntu-vm.qcow2 200G
+
+
+
+
+sudo virt-install \
+  --name ubuntu-vm \
+  --vcpus 24 \
+  --memory 65536 \
+  --disk path=/var/lib/libvirt/images/ubuntu-vm.qcow2,bus=sata,size=200 \
+  --cdrom /var/lib/libvirt/images/ubuntu-24.04.1-live-server-amd64.iso \
+  --network network=bridge-10,model=virtio \
+  --os-type linux \
+  --os-variant ubuntu22.04 \
+  --graphics spice \
+  --console pty,target_type=serial \
+  --boot useserial=on
+
+
+
+  sudo virsh list --all
+
+
+sudo virt-clone   --original clone-vm4-1   --name vm4-3  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-4  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-5  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-6  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-7  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-8  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-9  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-10  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-11  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-12  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-13  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-14  --auto-clone 
+
+
+sudo virt-clone   --original clone-vm4-1   --name vm4-15  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-16  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-17  --auto-clone 
+
+sudo virt-clone   --original clone-vm4-1   --name vm4-18  --auto-clone 
+
+sudo virt-clone   --original clone-vm4-1   --name vm4-19  --auto-clone 
+
+sudo virt-clone   --original clone-vm4-1   --name vm4-20  --auto-clone 
+
+sudo virt-clone   --original clone-vm4-1   --name vm4-21  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-22  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-23  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-24  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-25  --auto-clone 
+
+
+
+sudo virt-clone   --original clone-vm4-1   --name vm4-26  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-27  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-28  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-29  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-30  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-31 --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-32  --auto-clone 
+sudo virt-clone   --original clone-vm4-1   --name vm4-33  --auto-clone 
+
+
+
+
+
+
+
+
+
+
+sudo virsh list --all --name | while read vm; do
+  echo "VM: $vm"
+  sudo virsh domuuid "$vm"
+ 
+done
+
+
+qemu+ssh://ze@10.10.0.2/system
+
+
+VM: clone-vm4-1
+3fa8c0fa-2666-4170-8604-c05065e1b1c9
+
+VM: vm4-1
+0407a598-6c35-4abd-af9c-8b9c03c98b5a
+
+VM: vm4-10
+4d505829-afea-40a3-901c-39ad617d23be
+
+VM: vm4-11
+ba9f5a8f-56af-4b51-8baa-f267e5d1a243
+
+VM: vm4-12
+997c34cb-0bbe-40ba-8496-b575b871f1c4
+
+VM: vm4-13
+4e53a12a-1453-4f3a-981a-817b9f242718
+
+VM: vm4-14
+9f160ee0-e9ef-4af9-885b-8092c4165299
+
+VM: vm4-15
+ca8db4b5-3a54-4bc1-a9aa-f8137eca5cdb
+
+VM: vm4-16
+8f904c8b-1013-44c1-bc79-bfabb4802c56
+
+VM: vm4-17
+164a492d-ff38-4f4d-b7ba-55187d89abfa
+
+VM: vm4-18
+2353376b-fc2f-44cd-918a-b7d208db1f72
+
+VM: vm4-19
+04c4702f-c5c5-4ccb-9138-5a52b7ee06e4
+
+VM: vm4-2
+
+
+VM: vm4-20
+
+
+VM: vm4-21
+
+
+VM: vm4-22
+
+
+VM: vm4-23
+
+
+VM: vm4-24
+
+
+VM: vm4-25
+
+
+VM: vm4-3
+7446ef78-82db-4dc3-96d6-83159189c9f9
+
+VM: vm4-4
+714cdfb2-7532-42b9-82d9-8e683a01239f
+
+VM: vm4-5
+de413886-0e2a-4fdf-b9ed-e051ae332a3b
+
+VM: vm4-6
+361f5fe6-2392-40e8-afe0-301e5b4e9991
+
+VM: vm4-7
+ebff213d-f2ec-4707-b3a7-de65c87c9cc8
+
+VM: vm4-8
+bd3f5118-253c-4eb0-b7ec-34c6c5da4c27
+
+VM: vm4-9
+19d25b6d-dc5f-480a-b905-215f413783ad
+
+
+
+
+sudo virsh list --all --name | while read vm; do
+  echo "VM: $vm"
+  sudo virsh dumpxml "$vm" | grep -i "mac address"
+done
+
+
+
+  sudo virt-clone --original ubuntu-vm --name ubuntu-vm-clone --auto-clone --check-cpu
+
+

@@ -282,8 +282,9 @@ openstack server create --image jammy-amd64 --flavor m1.small \
 FLOATING_IP=$(openstack floating ip create -f value -c floating_ip_address ext_net)
 openstack server add floating ip jammy-1 $FLOATING_IP
 
-ssh -i /home/ze/.ssh/id_rsa.pub  ubuntu@$FLOATING_IP
+ssh -i ~/cloud-keys/adminkey.pub   ubuntu@$FLOATING_IP
 
 
+chmod 600 /home/ze/cloud-keys/adminkey
 
 

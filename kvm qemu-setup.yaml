@@ -1,0 +1,121 @@
+
+-------------------------
+
+
+network:
+  version: 2
+  renderer: networkd
+
+  ethernets:
+    ens15f0:
+      dhcp4: false
+    ens15f1:
+      dhcp4: false
+
+  bridges:
+    br10:
+      interfaces: [ens15f0]
+      addresses: [10.10.0.10/16]
+      # gateway4 is deprecated, use routes instead
+      routes:
+      - to: default
+        via: 10.10.0.1
+        metric: 100
+        on-link: true
+      mtu: 1500
+      nameservers:
+        addresses: [8.8.8.8]
+      parameters:
+        stp: true
+        forward-delay: 4
+      dhcp4: no
+      dhcp6: no
+
+
+-------------------------------------
+sudo apt update & sudo apt upgrade -y
+
+sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager  -y
+sudo apt install qemu-kvm libvirt-daemon-system  libvirt-clients bridge-utils virt-manager 
+sudo adduser $USER kvm
+sudo usermod -aG libvirt $USER
+
+sudo systemctl start libvirtd
+sudo systemctl enable --now libvirtd
+
+
+
+--------------
+
+cat <<EOF > bridge-10.xml
+<network>
+  <name>bridge-10</name>
+  <forward mode="bridge"/>
+  <bridge name="br10"/>
+</network>
+
+EOF
+
+virsh net-define bridge-10.xml
+virsh net-start bridge-10
+virsh net-autostart bridge-10
+
+
+
+
+
+cat <<EOF > host-bridge11.xml
+<network>
+  <name>host-bridge11</name>
+  <forward mode="bridge"/>
+  <bridge name="br11"/>
+</network>
+
+EOF
+
+virsh net-define host-bridge11.xml
+virsh net-start host-bridge11
+virsh net-autostart host-bridge11
+
+sudo nano  /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+network: {config: disabled}
+
+
+
+
+
+
+cat <<EOF > real-bridge.xml
+<network>
+  <name>real-bridge</name>
+  <forward mode="bridge"/>
+  <bridge name="br-real"/>
+</network>
+
+EOF
+
+virsh net-define real-bridge.xml
+virsh net-start real-bridge
+virsh net-autostart real-bridge00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+
+
+----------------------
+sudo nano  /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+network: {config: disabled}
+
+
+
+network:
+    ethernets:
+      enp1s0:
+        dhcp4: false
+        addresses: [103.108.62.219/29]
+        nameservers: 
+         addresses: [8.8.8.8]
+        routes: 
+        - to: default
+          via: 103.108.62.217
+    version: 2
+
+
+

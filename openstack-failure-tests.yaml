@@ -1,0 +1,9 @@
+***JUJU****
+make juju controller ha 
+backup model
+backup controller
+
+****
+
+make rack controller ha
+make region controller ha

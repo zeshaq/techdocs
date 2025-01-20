@@ -12,6 +12,8 @@ variables:
   osd-devices: &osd-devices /dev/sdb /dev/sdc /dev/sdd
   expected-osd-count: &expected-osd-count 3
   expected-mon-count: &expected-mon-count 3
+
+
 machines:
   '0':
     series: jammy
@@ -24,7 +26,7 @@ machines:
     constraints: tags=ceph-osd
   '3':
     series: jammy
-    constraints: tags=os
+    constraints: tags=octaviabr
   '4':
     series: jammy
     constraints: tags=nova-compute
@@ -34,9 +36,11 @@ machines:
   '6':
     series: jammy
     constraints: tags=nova-compute
+
 applications:
   barbican:
     charm: barbican
+
     channel: *openstack-charm-channel
     num_units: 1
   barbican-mysql-router:
@@ -49,6 +53,7 @@ applications:
 
   ceph-mon:
     charm: ceph-mon
+
     channel: *ceph-charm-channel
     num_units: 3
     options:
@@ -62,18 +67,18 @@ applications:
   ceph-osd:
     charm: ceph-osd
     channel: *ceph-charm-channel
-
     num_units: 3
     to:
     - "0"
     - "1"
     - "2"
     options:
-      osd-devices: /dev/sdb /dev/sdc 
+      osd-devices: *osd-devices
 
 
   ceph-radosgw:
     charm: ceph-radosgw
+
     channel: *ceph-charm-channel
     num_units: 1
     annotations:
@@ -82,6 +87,7 @@ applications:
 
   cinder:
     charm: cinder
+
     channel: *openstack-charm-channel
     num_units: 1
     options:
@@ -109,6 +115,7 @@ applications:
       gui-y: "1030"
   glance:
     charm: glance
+
     channel: *openstack-charm-channel
     num_units: 1
     options:
@@ -126,6 +133,7 @@ applications:
       gui-y: "1400"
   glance-simplestreams-sync:
     charm: glance-simplestreams-sync
+
     channel: *openstack-charm-channel
 
     num_units: 1
@@ -135,13 +143,14 @@ applications:
                       name_prefix: 'ubuntu:released',
                       path: 'streams/v1/index.sjson', max: 1,
                       item_filters: [
-                        'release~(jammy)',
+                        'release~(jammy|noble)',
                         'arch~(x86_64|amd64)',
                         'ftype~(disk1.img|disk.img)']}]"
       run: true
 
   keystone:
     charm: keystone
+
     channel: *openstack-charm-channel
 
     num_units: 1
@@ -160,6 +169,7 @@ applications:
       gui-y: "1400"
   mysql-innodb-cluster:
     charm: mysql-innodb-cluster
+
     channel: *mysql-charm-channel
 
 
@@ -170,13 +180,14 @@ applications:
 
   neutron-api:
     charm: neutron-api
+
     channel: *openstack-charm-channel
 
     num_units: 1
     options:
-      enable-ml2-port-security: true
+      enable-ml2-port-security: True
       flat-network-providers: physnet1
-      neutron-security-groups: true
+      neutron-security-groups: True
       openstack-origin: *openstack-origin
     annotations:
       gui-x: "580"
@@ -192,16 +203,17 @@ applications:
 
   nova-cloud-controller:
     charm: nova-cloud-controller
+
     channel: *openstack-charm-channel
     num_units: 1
     options:
       network-manager: Neutron
       openstack-origin: *openstack-origin
+      console-access-protocol: novnc
 
   nova-compute:
     charm: nova-compute
     channel: *openstack-charm-channel
-
     num_units: 3
     to:
     - "4"
@@ -229,11 +241,12 @@ applications:
   octavia:
     charm: octavia
     channel: *openstack-charm-channel
-
     num_units: 1
     to:
     - "3"
     options:
+      loadbalancer-topology: 'ACTIVE_STANDBY'
+      debug: True
       lb-mgmt-controller-cacert: |-
         LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURjekNDQWx1Z0F3SUJBZ0lVWVEwTjFKVlpB
         VnY2eUJZeVVQYkQwcFB1ckowd0RRWUpLb1pJaHZjTkFRRUwKQlFBd1NURUxNQWtHQTFVRUJoTUNW
@@ -440,6 +453,7 @@ applications:
 
   openstack-dashboard:
     charm: openstack-dashboard
+
     channel: *openstack-charm-channel
     num_units: 1
     options:
@@ -470,6 +484,7 @@ applications:
 
   placement:
     charm: placement
+
     channel: *openstack-charm-channel
     num_units: 1
 
@@ -479,12 +494,14 @@ applications:
 
   rabbitmq-server:
     charm: rabbitmq-server
+
     channel: 3.9/stable
 
     num_units: 1
 
   vault:
     charm: vault
+
     channel: 1.8/stable
     num_units: 1
 

@@ -13,7 +13,7 @@ cat <<EOF > jujusetup.yaml
 EOF
 
 
-
+    sudo snap install juju --classic 
     juju add-cloud --client -f jujusetup.yaml maas-one
     juju add-credential --client -f jujusetup.yaml maas-one
     juju bootstrap --bootstrap-series=jammy --constraints tags=juju maas-one maas-controller

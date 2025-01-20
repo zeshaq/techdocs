@@ -62,3 +62,18 @@ juju relate octavia-mysql-router:shared-db octavia:shared-db
 
   - - neutron-api:neutron-load-balancer
   - octavia:neutron-api
+
+
+
+
+    juju remove-relation  octavia:amqp  rabbitmq-server:amqp --force 
+      juju remove-relation  octavia:identity-service keystone:identity-service
+juju  remove-relation  octavia:certificates vault:certificates
+
+
+juju  remove-relation  ovn-central:ovsdb-cms  octavia:ovsdb-cms
+
+
+
+ juju relate ovn-chassis:ovsdb-subordinate  octavia:ovsdb-subordinate
+   juju relate neutron-api:neutron-load-balancer octavia:neutron-api

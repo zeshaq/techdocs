@@ -1,4 +1,4 @@
-juju add-model --config default-series=jammy openstack1 maas-one 
+juju add-model --config default-series=jammy openstack2 maas-one 
 
 juju destroy-model openstack1 --force --no-wait
 
@@ -8,3 +8,64 @@ juju debug-log --include=octavia
 
 source ~/openrc
 env | grep OS_
+
+
+juju refresh octavia  --channel 2023.2/stable
+
+
+
+
+juju add-machine --constraints cor
+
+
+juju export-bundle --include-charm-defaults --include-series --filename mymodel.yaml
+
+
+juju add-machine --constraints="t" --base= ubuntu@22.04 -n 3
+
+
+maas login my-maas http://12.12.0.3:5240/MAAS $(dqQmbwzuF2z9e6Xtjm:4qUccJBqWmTNhkzAWP:np4Cfy8KfUvBq7SaW8gaVSNrKNmbwyRz --username=ze)
+
+
+sudo maas apikey --username=ze > api-key-file
+
+
+juju show-unit mysql-innodb-cluster/0
+
+
+juju add-machine --constraints zones=Zetfour --base ubuntu@22.04 -n 3
+
+juju add-machine --constraints tags=nova-dr --base ubuntu@22.04 
+
+ juju config ovn-chassis bridge-interface-mappings='br-ex:enp5s0'
+ juju config ovn-chassis ovn-bridge-mappings='physnet1:br-ex'
+
+ juju config ovn-chassis bridge-interface-mappings='br-ex:enp5s0 br-fx:enp1s0'
+ juju config ovn-chassis ovn-bridge-mappings='physnet1:br-ex'
+
+
+ juju status nova-compute
+
+ juju config neutron-api
+ juju config neutron-api flat-network-providers='physnet1 physnet2'
+  juju config neutron-api flat-network-providers='physnet1'
+
+  juju config ovn-chassis bridge-interface-mappings
+  juju config ovn-chassis ovn-bridge-mappings
+
+
+  juju resolved ovn-chassis/0 
+  juju resolved ovn-chassis/1
+  juju resolved ovn-chassis/2
+ 
+
+
+  juju status nova-compute
+
+
+  juju set-model-constraints zones=zone-os1
+
+
+
+  juju config vault totally-unsecure-auto-unlock=true
+  juju config vault auto-generate-root-ca-cert=true 
