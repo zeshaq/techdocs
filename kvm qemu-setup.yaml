@@ -82,6 +82,11 @@ network: {config: disabled}
 
 
 
+virsh net-define bridge-real.xml
+virsh net-start bridge-real
+virsh net-autostart bridge-real
+
+
 
 
 
