@@ -77,6 +77,8 @@ virsh net-define host-bridge11.xml
 virsh net-start host-bridge11
 virsh net-autostart host-bridge11
 
+
+
 sudo nano  /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
 network: {config: disabled}
 
@@ -101,9 +103,7 @@ EOF
 
 virsh net-define real-bridge.xml
 virsh net-start real-bridge
-virsh net-autostart real-bridge00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
-
-
+virsh net-autostart real-bridge
 ----------------------
 sudo nano  /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
 network: {config: disabled}
@@ -124,3 +124,56 @@ network:
 
 
 
+
+ 
+
+cat <<EOF >br15.xml
+<network>
+  <name>br15</name>
+  <forward mode="bridge"/>
+  <bridge name="br15"/>
+</network>
+
+EOF
+
+ 
+
+virsh net-define br15.xml
+virsh net-start br15
+virsh net-autostart br15
+
+
+
+sudo ip link set brtest down
+sudo ip link delete brtest type bridge
+
+
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s25:
+      dhcp4: true
+  bridges:
+    br0:
+      addresses: [ 10.3.99.25/24 ]
+      interfaces: [ vlan15 ]
+  vlans:
+    vlan15:
+      accept-ra: no
+      id: 15
+      link: enp0s25
+
+
+
+
+cat <<EOF >br11-1.xml
+
+
+ 
+
+
+virsh net-define br11-1.xml
+virsh net-start virbr11-1
+virsh net-autostart virbr11-1

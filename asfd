@@ -1,0 +1,14 @@
+cat <<EOF >bridge-11-40.xml
+<network>
+  <name>bridge11-40</name>
+  <forward mode="bridge"/>
+  <bridge name="br11-40"/>
+</network>
+
+EOF
+
+ 
+
+virsh net-define bridge-11-40.xml
+virsh net-start bridge11-40
+virsh net-autostart bridge11-40

@@ -1,5 +1,5 @@
 juju add-model microk8s
-juju deploy microk8s --config hostpath_storage=true --constraints 'tags=microk8s' --channel 1.28/stable --series jammy
+juju deploy microk8s -n 3  --config hostpath_storage=true --constraints 'tags=microk8s' --channel 1.28/stable --series jammy
 juju expose microk8s
 kubeconfig="$(juju exec --unit microk8s/leader -- microk8s config)"
 
@@ -9,6 +9,14 @@ echo "$kubeconfig" | juju add-k8s microk8s-cloud --controller "$controller"
 
 juju add-model cos microk8s-cloud
 juju switch cos
+
+
+
+
+juju ssh microk8s/leader 
+IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
+microk8s enable metallb:12.12.122.1-12.12.122.200
+
 
 
 mkdir .kube

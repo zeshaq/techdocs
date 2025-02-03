@@ -73,8 +73,11 @@ juju show-unit catalogue/0 | grep url
       ingress: '{"url": "http://12.12.122.1/cos-catalogue"}'
 
 
+
 juju run grafana/leader get-admin-password --model cos 
-NZX2jJtxVFa7
+
+admin-password: dkHC9K99a8Rq
+url: http://12.12.122.1/cos-grafana
 
 
 
