@@ -1,179 +1,66 @@
-
--------------------------
-
-
 network:
   version: 2
   renderer: networkd
-
   ethernets:
     ens15f0:
       dhcp4: false
+      addresses: [12.12.0.3/16]
+      nameservers:
+        addresses:
+        - 8.8.8.8
+      routes:
+      - metric: 100
+        on-link: true
+        to: "default"
+        via: "12.12.0.1"
+
     ens15f1:
       dhcp4: false
 
   bridges:
-    br10:
-      interfaces: [ens15f0]
-      addresses: [10.10.0.10/16]
-      # gateway4 is deprecated, use routes instead
-      routes:
-      - to: default
-        via: 10.10.0.1
-        metric: 100
-        on-link: true
-      mtu: 1500
-      nameservers:
-        addresses: [8.8.8.8]
-      parameters:
-        stp: true
-        forward-delay: 4
-      dhcp4: no
-      dhcp6: no
-
-
--------------------------------------
-sudo apt update & sudo apt upgrade -y
-
-sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager  -y
-sudo apt install qemu-kvm libvirt-daemon-system  libvirt-clients bridge-utils virt-manager 
-sudo adduser $USER kvm
-sudo usermod -aG libvirt $USER
-
-sudo systemctl start libvirtd
-sudo systemctl enable --now libvirtd
-
-
-
---------------
-
-cat <<EOF > bridge-10.xml
-<network>
-  <name>bridge-10</name>
-  <forward mode="bridge"/>
-  <bridge name="br10"/>
-</network>
-
-EOF
-
-virsh net-define bridge-10.xml
-virsh net-start bridge-10
-virsh net-autostart bridge-10
-
-
-
-
-
-cat <<EOF > host-bridge11.xml
-<network>
-  <name>host-bridge11</name>
-  <forward mode="bridge"/>
-  <bridge name="br11"/>
-</network>
-
-EOF
-
-virsh net-define host-bridge11.xml
-virsh net-start host-bridge11
-virsh net-autostart host-bridge11
-
-
-
-sudo nano  /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
-network: {config: disabled}
-
-
-
-virsh net-define bridge-real.xml
-virsh net-start bridge-real
-virsh net-autostart bridge-real
-
-
-
-
-
-cat <<EOF > real-bridge.xml
-<network>
-  <name>real-bridge</name>
-  <forward mode="bridge"/>
-  <bridge name="br-real"/>
-</network>
-
-EOF
-
-virsh net-define real-bridge.xml
-virsh net-start real-bridge
-virsh net-autostart real-bridge
-----------------------
-sudo nano  /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
-network: {config: disabled}
-
-
-
-network:
-    ethernets:
-      enp1s0:
-        dhcp4: false
-        addresses: [103.108.62.219/29]
-        nameservers: 
-         addresses: [8.8.8.8]
-        routes: 
-        - to: default
-          via: 103.108.62.217
-    version: 2
-
-
-
-
- 
-
-cat <<EOF >br15.xml
-<network>
-  <name>br15</name>
-  <forward mode="bridge"/>
-  <bridge name="br15"/>
-</network>
-
-EOF
-
- 
-
-virsh net-define br15.xml
-virsh net-start br15
-virsh net-autostart br15
-
-
-
-sudo ip link set brtest down
-sudo ip link delete brtest type bridge
-
-
-
-network:
-  version: 2
-  renderer: networkd
-  ethernets:
-    enp0s25:
-      dhcp4: true
-  bridges:
-    br0:
-      addresses: [ 10.3.99.25/24 ]
-      interfaces: [ vlan15 ]
+    br12-10:
+      addresses:
+      - "12.12.10.2/24"
+      interfaces: [vlan10]
+    br12-20:
+      addresses:
+      - "12.12.20.2/24"
+      interfaces: [vlan20]
+    br12-30:
+      addresses:
+      - "12.12.30.1/24"
+      interfaces: [vlan30]
+    br12-40:
+      addresses:
+      - "12.12.40.2/24"
+      interfaces: [vlan40]
+    br12-50:
+      addresses:
+      - "12.12.50.2/24"
+      interfaces: [vlan50]
+    br12-60:
+      addresses:
+      - "12.12.60.2/24"
+      interfaces: [vlan60]
   vlans:
-    vlan15:
-      accept-ra: no
-      id: 15
-      link: enp0s25
-
-
-
-
-cat <<EOF >br11-1.xml
-
-
- 
-
-
-virsh net-define br11-1.xml
-virsh net-start virbr11-1
-virsh net-autostart virbr11-1
+    vlan10:
+      id: 10
+      link: ens15f0
+    vlan20:
+      id: 20
+      link: ens15f0
+    vlan30:
+      id: 30
+      link: ens15f0
+    vlan40:
+      id: 40
+      link: ens15f0
+    vlan50:
+      id: 50
+      link: ens15f0
+    vlan60:
+      id: 60
+      link: ens15f0
+    vlan60:
+      id: 60
+      link: ens15f0
